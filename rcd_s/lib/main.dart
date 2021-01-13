@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'devices.dart';
 
 void main() {
   runApp(MyApp());
@@ -76,8 +77,11 @@ class AuthorizationState extends State<Authorization> {
 
   void submit() {
     if (_formKey.currentState.validate()) {
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('Осуществляется вход...')));
+      /*Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text('Осуществляется вход...')));*/
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Devices();
+      }));
     }
   }
 }
