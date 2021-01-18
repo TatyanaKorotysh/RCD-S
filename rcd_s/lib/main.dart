@@ -11,8 +11,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'RCD-S',
         theme: ThemeData(
-          primarySwatch: Colors
-              .indigo, // используются все оттенки цвета (элементы гастраивать не надо)
+          primarySwatch: Colors.indigo,
+          // используются все оттенки цвета (элементы гастраивать не надо)
           //primaryColor: Colors.indigo[900], //используется только дин цвет (каждый элемент настраивается отдельно)
           visualDensity: VisualDensity.adaptivePlatformDensity,
           // адаптивность

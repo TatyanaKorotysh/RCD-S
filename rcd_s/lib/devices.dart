@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'menu.dart';
 
 class Devices extends StatefulWidget {
   Devices({Key key}) : super(key: key);
@@ -34,9 +35,6 @@ class _DevicesState extends State<Devices> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('Устройства'),
-          actions: [
-            IconButton(icon: Icon(Icons.dehaze_rounded), onPressed: _openMenu),
-          ],
         ),
         body: Center(
           child: Column(
@@ -52,6 +50,7 @@ class _DevicesState extends State<Devices> {
             ],
           ),
         ),
+        drawer: Menu('Устройства', context).menu,
         floatingActionButton: FloatingActionButton(
           onPressed: _addDevice,
           child: Icon(Icons.add),
