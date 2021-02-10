@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'menu.dart';
+import 'addDevice.dart';
 
 class Devices extends StatefulWidget {
   Devices({Key key}) : super(key: key);
@@ -27,34 +28,28 @@ class _DevicesState extends State<Devices> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Устройства'),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Устройства'),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 60.0,
+              width: MediaQuery.of(context).size.width,
+              child: _block(),
+            ),
+            Expanded(
+              child: _grid(),
+            ),
+          ],
         ),
-        body: Center(
-          child: Column(
-            children: <Widget>[
-              Container(
-                height: 60.0,
-                width: MediaQuery.of(context).size.width,
-                child: _block(),
-              ),
-              Expanded(
-                child: _grid(),
-              ),
-            ],
-          ),
-        ),
-        drawer: Menu('Устройства', context).menu,
-        floatingActionButton: FloatingActionButton(
-          onPressed: _addDevice,
-          child: Icon(Icons.add),
-        ),
+      ),
+      drawer: Menu('Устройства', context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addDevice,
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -158,7 +153,9 @@ class _DevicesState extends State<Devices> {
     );
   }
 
-  void _openMenu() {}
-
-  void _addDevice() {}
+  void _addDevice() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return AddDevice();
+    }));
+  }
 }

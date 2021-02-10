@@ -13,26 +13,20 @@ class _AddDeviceState extends State<AddDevice> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          title: Text('Новое устройство'),
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        body: SingleChildScrollView(
-          //возможен scroll
-          child: Center(
-            child: _form(),
-          ),
+        title: Text('Новое устройство'),
+      ),
+      body: SingleChildScrollView(
+        //возможен scroll
+        child: Center(
+          child: _form(),
         ),
       ),
     );
@@ -90,8 +84,10 @@ class _AddDeviceState extends State<AddDevice> {
                         color: Colors.indigo,
                       ),
                       hint: Container(
-                        padding: EdgeInsets.only(left: 12.0),
-                        child: Icon(_iconValue ?? _data.values.toList()[0]),
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: Icon(
+                          _iconValue ?? _data.values.toList()[0],
+                        ),
                       ),
                       onChanged: (String newValue) {
                         setState(() {
@@ -102,7 +98,10 @@ class _AddDeviceState extends State<AddDevice> {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Container(
-                            child: Icon(_data[value]),
+                            child: Icon(
+                              _data[value],
+                              size: 36.0,
+                            ),
                           ),
                         );
                       }).toList(),

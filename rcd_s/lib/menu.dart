@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rcd_s/devices.dart';
+import 'package:rcd_s/profile.dart';
 
-class Menu extends StatelessWidget {
+class Menu extends StatefulWidget {
   static String currentTitle;
   static var currentContext;
 
@@ -11,62 +12,76 @@ class Menu extends StatelessWidget {
   }
 
   @override
+  _MenuState createState() => _MenuState(currentTitle, currentContext);
+}
+
+class _MenuState extends State<Menu> {
+  static String currentTitle;
+  static var currentContext;
+
+  _MenuState(String title, var context) {
+    currentTitle = title;
+    currentContext = context;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Text(
+              '$currentTitle',
+              style: TextStyle(fontSize: 20.0, color: Colors.white),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.indigo,
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.supervised_user_circle_rounded),
+            title: Text('Профиль'),
+            onTap: () {
+              Navigator.push(currentContext,
+                  MaterialPageRoute(builder: (context) {
+                return Profile();
+              }));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.supervised_user_circle_rounded),
+            title: Text('Устройства'),
+            onTap: () {
+              Navigator.push(currentContext,
+                  MaterialPageRoute(builder: (context) {
+                return Devices();
+              }));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.supervised_user_circle_rounded),
+            title: Text('Сценарии'),
+            onTap: () {
+              //Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.supervised_user_circle_rounded),
+            title: Text('Роли'),
+            onTap: () {
+              //Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.supervised_user_circle_rounded),
+            title: Text('Настройки'),
+            onTap: () {
+              //Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }
-
-  Widget menu = Drawer(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        DrawerHeader(
-          child: Text(
-            '$currentTitle',
-            style: TextStyle(fontSize: 20.0, color: Colors.white),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.indigo,
-          ),
-        ),
-        ListTile(
-          title: Text('Профиль'),
-          onTap: () {
-            //Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: Text('Устройства'),
-          onTap: () {
-            Navigator.push(currentContext,
-                MaterialPageRoute(builder: (context) {
-              return Devices();
-            }));
-          },
-        ),
-        ListTile(
-          title: Text('Сценарии'),
-          onTap: () {
-            //Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: Text('Роли'),
-          onTap: () {
-            //Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: Text('Настройки'),
-          onTap: () {
-            //Navigator.pop(context);
-          },
-        ),
-      ],
-    ),
-  );
 }

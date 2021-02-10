@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'devices.dart';
+//import 'devices.dart';
+import 'createProfile.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +18,9 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
           // адаптивность
         ),
-        home: Scaffold(body: Authorization()));
+        home: Scaffold(
+          body: Authorization(),
+        ));
   }
 }
 
@@ -80,7 +83,7 @@ class AuthorizationState extends State<Authorization> {
       /*Scaffold.of(context)
           .showSnackBar(SnackBar(content: Text('Осуществляется вход...')));*/
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return Devices();
+        return CreateProfile();
       }));
     }
   }
