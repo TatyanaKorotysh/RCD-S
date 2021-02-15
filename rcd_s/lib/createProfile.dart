@@ -131,6 +131,9 @@ class _CreateProfileState extends State<CreateProfile> {
   void cancel() {}
 
   void save() {
+    //добавить условие проверки:
+    //если в первый раз, то открываем устройсва
+    //если нет, то профиль
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return Devices();
     }));

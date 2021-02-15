@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rcd_s/createProfile.dart';
 import 'menu.dart';
 
 class Profile extends StatefulWidget {
@@ -30,55 +31,70 @@ class _ProfileState extends State<Profile> {
   Widget _form() {
     final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: <Widget>[
-          Container(
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'Логин'),
+    return Column(
+      children: <Widget>[
+        Container(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Логин: '),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Пароль: '),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Номер телефона: '),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('E-mail: '),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Тип планеровки: '),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    MaterialButton(
+                      minWidth: MediaQuery.of(context).size.width * 0.3,
+                      onPressed: change,
+                      child: Text('Изменить', style: _sizeTextWhite),
+                      color: Theme.of(context).accentColor,
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'Пароль'),
-                  obscureText: true,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MaterialButton(
-                  minWidth: MediaQuery.of(context).size.width * 0.3,
-                  onPressed: cancel,
-                  child: Text('Отмена', style: _sizeTextWhite),
-                  color: Theme.of(context).accentColor,
-                ),
-                MaterialButton(
-                  minWidth: MediaQuery.of(context).size.width * 0.3,
-                  onPressed: save,
-                  child: Text('Сохранить', style: _sizeTextWhite),
-                  color: Theme.of(context).accentColor,
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  void cancel() {}
-
-  void save() {}
+  void change() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return CreateProfile();
+    }));
+  }
 }
