@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
-//import 'devices.dart';
 import 'createProfile.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return FutureBuilder(
+        future: _initialization,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Scaffold(
+              body: Text('Проверка на ошибки'),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.done) {
+            return MaterialApp(
+              title: 'RCD-S',
+              theme: ThemeData(
+                primarySwatch: Colors.indigo,
+                // используются все оттенки цвета (элементы гастраивать не надо)
+                //primaryColor: Colors.indigo[900], //используется только дин цвет (каждый элемент настраивается отдельно)
+                visualDensity: VisualDensity.adaptivePlatformDensity,
+                // адаптивность
+              ),
+              home: Scaffold(
+                body: Authorization(),
+              ),
+            );
+          }
+
+          return Scaffold(
+            body: Text('Ошибка при подключении БД'),
+          );
+        });
+    /*return MaterialApp(
         title: 'RCD-S',
         theme: ThemeData(
           primarySwatch: Colors.indigo,
@@ -20,7 +51,7 @@ class MyApp extends StatelessWidget {
         ),
         home: Scaffold(
           body: Authorization(),
-        ));
+        ));*/
   }
 }
 
