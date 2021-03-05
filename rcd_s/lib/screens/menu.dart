@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rcd_s/devices.dart';
-import 'package:rcd_s/profile.dart';
+import 'devices.dart';
+import 'profile.dart';
 
 class Menu extends StatefulWidget {
   static String currentTitle;

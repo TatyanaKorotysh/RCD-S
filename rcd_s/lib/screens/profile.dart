@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rcd_s/createProfile.dart';
+import 'activateProfile.dart';
 import 'menu.dart';
 
 class Profile extends StatefulWidget {
@@ -11,7 +11,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final _formKey = GlobalKey<FormState>();
+  //final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class _ProfileState extends State<Profile> {
 
   void change() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CreateProfile();
+      return ActivateProfile();
     }));
   }
 }

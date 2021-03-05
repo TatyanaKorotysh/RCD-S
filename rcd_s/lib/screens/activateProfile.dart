@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:rcd_s/devices.dart';
+import 'devices.dart';
 
-class CreateProfile extends StatefulWidget {
-  CreateProfile({Key key}) : super(key: key);
+class ActivateProfile extends StatefulWidget {
+  ActivateProfile({Key key}) : super(key: key);
 
   @override
-  _CreateProfileState createState() => _CreateProfileState();
+  _ActivateProfileState createState() => _ActivateProfileState();
 }
 
-class _CreateProfileState extends State<CreateProfile> {
+class _ActivateProfileState extends State<ActivateProfile> {
   final _formKey = GlobalKey<FormState>();
 
   @override
