@@ -11,7 +11,7 @@ class AuthService {
       User user = result.user;
       return CurrentUser.fromFirebase(user);
     } catch (e) {
-      print(e);
+      //возвращать не null, а выводить текст ошибки
       return null;
     }
   }
@@ -23,6 +23,6 @@ class AuthService {
 
   Stream<CurrentUser> get currentUser {
     return _fAuth.authStateChanges().map(
-        (User user) => user != null ? CurrentUser.fromFirebase(user) : null);
+        (User user) => {user} != null ? CurrentUser.fromFirebase(user) : null);
   }
 }

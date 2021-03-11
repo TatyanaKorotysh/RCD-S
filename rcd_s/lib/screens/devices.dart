@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'menu.dart';
+import 'package:rcd_s/components/menu.dart';
 import 'addDevice.dart';
 
 class Devices extends StatefulWidget {
@@ -25,6 +25,13 @@ class _DevicesState extends State<Devices> {
     "Instagram",
     "Pinterest"
   ];
+  // ignore: top_level_function_literal_block
+  var sortList = <String>["one", "two", "three"].map((String value) {
+    return new DropdownMenuItem<String>(
+      value: value,
+      child: new Text(value),
+    );
+  }).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,7 @@ class _DevicesState extends State<Devices> {
             Container(
               height: 60.0,
               width: MediaQuery.of(context).size.width,
-              child: _block(),
+              child: _filter(),
             ),
             Expanded(
               child: _grid(),
@@ -54,74 +61,28 @@ class _DevicesState extends State<Devices> {
     );
   }
 
-  Widget _block() {
-    String _sortValue = 'One';
-    String _groupValue = 'One';
+  Widget _filter() {
+    String _sortValue = 'one';
+    String _groupValue = 'one';
 
     return Row(
       children: <Widget>[
         Expanded(
-          flex: 5, //50%
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Сортировать по '),
-              DropdownButton<String>(
-                value: _sortValue,
-                icon: Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: Colors.deepPurple),
-                underline: Container(
-                  height: 2,
-                  color: Colors.deepPurpleAccent,
-                ),
-                onChanged: (String newValue) {
-                  setState(() {
-                    _sortValue = newValue;
-                  });
-                },
-                items: <String>['One', 'Two', 'Three', 'Four']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ],
+          flex: 5,
+          child: DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: "Сортировать по "),
+            items: sortList,
+            value: _sortValue,
+            onChanged: (String val) => setState(() => _sortValue = val),
           ),
         ),
         Expanded(
-          flex: 5, //50%
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Группировать по '),
-              DropdownButton<String>(
-                value: _groupValue,
-                icon: Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: Colors.deepPurple),
-                underline: Container(
-                  height: 2,
-                  color: Colors.deepPurpleAccent,
-                ),
-                onChanged: (String newValue) {
-                  setState(() {
-                    _groupValue = newValue;
-                  });
-                },
-                items: <String>['One', 'Two', 'Three', 'Four']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ],
+          flex: 5,
+          child: DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: "Группировать по "),
+            items: sortList,
+            value: _groupValue,
+            onChanged: (String val) => setState(() => _groupValue = val),
           ),
         )
       ],

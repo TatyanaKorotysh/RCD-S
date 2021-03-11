@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'devices.dart';
-import 'profile.dart';
+import 'package:rcd_s/screens/devices.dart';
+import 'package:rcd_s/screens/profile.dart';
+import 'package:rcd_s/services/auth.dart';
 
 class Menu extends StatefulWidget {
   static String currentTitle;
@@ -78,6 +79,13 @@ class _MenuState extends State<Menu> {
             title: Text('Настройки'),
             onTap: () {
               //Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.supervised_user_circle_rounded),
+            title: Text('Выйти'),
+            onTap: () {
+              AuthService().signOut();
             },
           ),
         ],

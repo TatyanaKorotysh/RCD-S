@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rcd_s/domain/currentUser.dart';
 import 'package:rcd_s/services/auth.dart';
 import 'activateProfile.dart';
+import 'package:rcd_s/components/input.dart';
 
 class Authorization extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class AuthorizationState extends State<Authorization> {
 
   AuthService _authService = AuthService();
 
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Form(
@@ -30,8 +32,10 @@ class AuthorizationState extends State<Authorization> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _input("E-mail", _emailController, false),
-            _input("Пароль", _passwordController, true),
+            input("E-mail", TextInputType.emailAddress, _emailController, 10.0,
+                false),
+            input(
+                "Пароль", TextInputType.text, _passwordController, 10.0, true),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: MaterialButton(
@@ -46,26 +50,10 @@ class AuthorizationState extends State<Authorization> {
     );
   }
 
-  Widget _input(String lable, TextEditingController controller, bool hide) {
-    return Container(
-      child: TextFormField(
-        decoration: new InputDecoration(labelText: lable),
-        controller: controller,
-        obscureText: hide,
-        validator: (value) => (value.isEmpty) ? 'Поле пустое' : null,
-      ),
-      width: MediaQuery.of(context).size.width * 0.8,
-      padding: EdgeInsets.only(bottom: 20.0),
-    );
-  }
-
   void submit() async {
     if (_formKey.currentState.validate()) {
       _email = _emailController.text;
       _password = _passwordController.text;
-
-      print(_email);
-      print(_password);
 
       if (_email.isEmpty || _password.isEmpty) return null;
 
@@ -74,9 +62,9 @@ class AuthorizationState extends State<Authorization> {
       if (user == null) {
         Scaffold.of(context)
             .showSnackBar(SnackBar(content: Text('Неверный логин и пароль')));
-        print('данные неверны');
       } else {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
+          //проверка на активацию профиля
           return ActivateProfile();
         }));
       }

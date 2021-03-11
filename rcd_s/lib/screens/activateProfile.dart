@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rcd_s/domain/currentUser.dart';
 import 'devices.dart';
+import 'package:rcd_s/components/input.dart';
 
 class ActivateProfile extends StatefulWidget {
   ActivateProfile({Key key}) : super(key: key);
@@ -11,8 +14,29 @@ class ActivateProfile extends StatefulWidget {
 class _ActivateProfileState extends State<ActivateProfile> {
   final _formKey = GlobalKey<FormState>();
 
+  var homeType = <String>["Однокомнатная", "Двухкомнатная", "Трехкомнатная"]
+      // ignore: top_level_function_literal_block
+      .map((String value) {
+    return new DropdownMenuItem<String>(
+      value: value,
+      child: new Text(value),
+    );
+  }).toList();
+
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _repeatPasswordController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+
+  String _name;
+  String _password;
+  String _repeatePassword;
+  String _email;
+
   @override
   Widget build(BuildContext context) {
+    final CurrentUser user = Provider.of<CurrentUser>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Активация аккаунта'),
@@ -27,7 +51,7 @@ class _ActivateProfileState extends State<ActivateProfile> {
 
   Widget _form(BuildContext context) {
     final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
-    String _dataValue = '1';
+    String _dataValue = 'Однокомнатная';
 
     return Form(
       key: _formKey,
@@ -36,67 +60,27 @@ class _ActivateProfileState extends State<ActivateProfile> {
           Container(
             child: Column(
               children: [
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'Логин'),
-                  keyboardType: TextInputType.name,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'Пароль'),
-                  keyboardType: TextInputType.visiblePassword,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration:
-                      new InputDecoration(labelText: 'Подтверждение пароля'),
-                  obscureText: true,
-                  keyboardType: TextInputType.visiblePassword,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'Номер телефона'),
-                  keyboardType: TextInputType.phone,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'E-mail'),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
+                input("Имя", TextInputType.name, _nameController, 10.0, false),
+                input("Пароль", TextInputType.text, _passwordController, 10.0,
+                    true),
+                input("Подтверждение пароля", TextInputType.text,
+                    _repeatPasswordController, 10.0, true),
+                input("Номер телефона", TextInputType.phone, _emailController,
+                    10.0, false),
+                input("E-mail", TextInputType.emailAddress, _emailController,
+                    10.0, false),
                 Row(
                   children: <Widget>[
-                    Text('Тип планировки'),
-                    DropdownButton<String>(
-                      value: _dataValue,
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.indigo),
-                      underline: Container(
-                        height: 2.0,
-                        color: Colors.indigo,
+                    Expanded(
+                      flex: 5,
+                      child: DropdownButtonFormField<String>(
+                        decoration:
+                            const InputDecoration(labelText: "Тип планеровки"),
+                        items: homeType,
+                        value: _dataValue,
+                        onChanged: (String val) =>
+                            setState(() => _dataValue = val),
                       ),
-                      onChanged: (String newValue) {
-                        setState(() {
-                          _dataValue = newValue;
-                        });
-                      },
-                      items: <String>['1', '2', '3']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
                     ),
                   ],
                 )
@@ -130,12 +114,13 @@ class _ActivateProfileState extends State<ActivateProfile> {
 
   void cancel() {}
 
-  void save() {
-    //добавить условие проверки:
-    //если в первый раз, то открываем устройсва
-    //если нет, то профиль
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Devices();
-    }));
+  void save() async {
+    if (_formKey.currentState.validate()) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Devices();
+      }));
+    }
+
+    //await DatabaseService().addOrUpateUser(user);
   }
 }

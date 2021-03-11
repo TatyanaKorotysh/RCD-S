@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rcd_s/components/input.dart';
 
 class AddDevice extends StatefulWidget {
   AddDevice({Key key}) : super(key: key);
@@ -10,6 +11,8 @@ class AddDevice extends StatefulWidget {
 
 class _AddDeviceState extends State<AddDevice> {
   final _formKey = GlobalKey<FormState>();
+
+  TextEditingController _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -46,28 +49,17 @@ class _AddDeviceState extends State<AddDevice> {
           Container(
             child: Column(
               children: <Widget>[
-                TextFormField(
-                  decoration: new InputDecoration(labelText: "id устройства"),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: "Имя устройства"),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: "Комната"),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                ),
+                input("id устройтва", TextInputType.number, _emailController,
+                    10.0, false),
+                input("Имя устройства", TextInputType.name, _emailController,
+                    10.0, false),
+                input("Комната", TextInputType.name, _emailController, 10.0,
+                    false),
                 TextFormField(
                   decoration: new InputDecoration(labelText: "Комментарий"),
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
+                  controller: _emailController,
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10.0),
