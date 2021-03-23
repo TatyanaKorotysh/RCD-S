@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "333463428484",
+    "project_id": "rcds-877c1",
+    "storage_bucket": "rcds-877c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333463428484:android:480b2c4da88e4280ff91d1",
+        "android_client_info": {
+          "package_name": "com.example.rcds"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333463428484-9k2ostceq7p5nsv6gvi3d0t008dh97vi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeQnRq1Q__Bib7_j5c8Cz7hoVywVTlzew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333463428484-9k2ostceq7p5nsv6gvi3d0t008dh97vi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
