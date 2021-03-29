@@ -41,20 +41,24 @@ class _MenuState extends State<Menu> {
             leading: Icon(Icons.supervised_user_circle_rounded),
             title: Text('Профиль'),
             onTap: () {
-              Navigator.push(currentContext,
-                  MaterialPageRoute(builder: (context) {
-                return null;
-              }));
+              Navigator.push(
+                  currentContext,
+                  MaterialPageRoute(
+                      builder: (context) {
+                    return null;
+                  } as Widget Function(BuildContext)));
             },
           ),
           ListTile(
             leading: Icon(Icons.supervised_user_circle_rounded),
             title: Text('Устройства'),
             onTap: () {
-              Navigator.push(currentContext,
-                  MaterialPageRoute(builder: (context) {
-                return null;
-              }));
+              Navigator.push(
+                  currentContext,
+                  MaterialPageRoute(
+                      builder: (context) {
+                    return null;
+                  } as Widget Function(BuildContext)));
             },
           ),
           ListTile(

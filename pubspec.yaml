@@ -23,20 +23,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  mqtt_client: ^9.0.0
+  qr_mobile_vision: ^3.0.0
+  toast: ^0.1.5
+  wifi: ^0.1.5
+  # support json_serializable
+  path_provider: ^2.0.1
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.0
-  provider: ^4.3.3
-  toast: ^0.1.5
-  # For connect to wifi
-  wifi: ^0.1.5
-  # Read QR-code
-  qr_mobile_vision: ^3.0.0
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # ganerate json
+  json_serializable: ^4.1.0
+  # A build system for Dart code generation and modular compilation
+  build_runner: ^1.12.2 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -50,9 +56,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  #assets:
+    #- assets/data/users.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
