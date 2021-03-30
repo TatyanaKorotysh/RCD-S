@@ -56,7 +56,7 @@ class _WifiConnectState extends State<WifiConnect> {
         WifiModel(_wifiController.text, _wifiPasswordController.text);
     Map<String, dynamic> wifiJson = wifi.toJson();
 
-    JsonService.createUser(wifiJson);
+    JsonService.createWifi(wifiJson);
 
     connectToWiFi(_wifiController.text, _wifiPasswordController.text, context);
   }

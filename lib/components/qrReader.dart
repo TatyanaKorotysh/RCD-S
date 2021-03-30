@@ -16,17 +16,22 @@ class _QrReaderState extends State<QrReader> {
   @override
   initState() {
     super.initState();
+    getCamera();
   }
 
   bool camState = false;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Expanded(
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(padding: EdgeInsets.only(top: 40.0)),
+          Text('Сканируйте QR-код на крышке сервера для подключения к облаку'),
+          Padding(padding: EdgeInsets.only(top: 20.0)),
+          Expanded(
             child: camState
                 ? Center(
                     child: SizedBox(
@@ -58,8 +63,17 @@ class _QrReaderState extends State<QrReader> {
                   )
                 : Center(
                     child:
-                        Text("Доспуп к камере для этого приложения запрещен"))),
-      ],
+                        Text("Доспуп к камере для этого приложения запрещен"),
+                  ),
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget getCamera() {
+    setState(() {
+      camState = !camState;
+    });
   }
 }

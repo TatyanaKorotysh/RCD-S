@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
           // адаптивность
         ),
         home: Scaffold(
-          body: Leading(),
+          body: Loading(),
         ),
       );
     });
