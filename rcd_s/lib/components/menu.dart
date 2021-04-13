@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:rcd_s/screens/authorization.dart';
+import 'package:rcd_s/screens/devices.dart';
+import 'package:rcd_s/screens/preferences.dart';
+import 'package:rcd_s/screens/users.dart';
 
 class Menu extends StatefulWidget {
   static String currentTitle;
@@ -34,35 +38,21 @@ class _MenuState extends State<Menu> {
               style: TextStyle(fontSize: 20.0, color: Colors.white),
             ),
             decoration: BoxDecoration(
-              color: Colors.indigo,
+              color: Theme.of(context).accentColor,
             ),
           ),
           ListTile(
-            leading: Icon(Icons.supervised_user_circle_rounded),
-            title: Text('Профиль'),
-            onTap: () {
-              Navigator.push(
-                  currentContext,
-                  MaterialPageRoute(
-                      builder: (context) {
-                    return null;
-                  } as Widget Function(BuildContext)));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.supervised_user_circle_rounded),
+            leading: Icon(Icons.devices_other_rounded),
             title: Text('Устройства'),
             onTap: () {
-              Navigator.push(
-                  currentContext,
-                  MaterialPageRoute(
-                      builder: (context) {
-                    return null;
-                  } as Widget Function(BuildContext)));
+              Navigator.push(currentContext,
+                  MaterialPageRoute(builder: (context) {
+                return Devices();
+              }));
             },
           ),
           ListTile(
-            leading: Icon(Icons.supervised_user_circle_rounded),
+            leading: Icon(Icons.schedule_rounded),
             title: Text('Сценарии'),
             onTap: () {
               //Navigator.pop(context);
@@ -70,22 +60,33 @@ class _MenuState extends State<Menu> {
           ),
           ListTile(
             leading: Icon(Icons.supervised_user_circle_rounded),
-            title: Text('Роли'),
+            title: Text('Пользователи'),
             onTap: () {
-              //Navigator.pop(context);
+              Navigator.push(currentContext,
+                  MaterialPageRoute(builder: (context) {
+                return Users();
+              }));
             },
           ),
           ListTile(
-            leading: Icon(Icons.supervised_user_circle_rounded),
+            leading: Icon(Icons.settings),
             title: Text('Настройки'),
             onTap: () {
-              //Navigator.pop(context);
+              Navigator.push(currentContext,
+                  MaterialPageRoute(builder: (context) {
+                return Preferences();
+              }));
             },
           ),
           ListTile(
-            leading: Icon(Icons.supervised_user_circle_rounded),
+            leading: Icon(Icons.exit_to_app_rounded),
             title: Text('Выйти'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(currentContext,
+                  MaterialPageRoute(builder: (context) {
+                return Authorization();
+              }));
+            },
           ),
         ],
       ),

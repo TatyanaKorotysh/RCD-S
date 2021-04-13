@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:qr_mobile_vision/qr_camera.dart';
 import 'package:rcd_s/connections/mqttConnect.dart';
 import 'package:rcd_s/screens/devices.dart';
+import 'package:rcd_s/services/translate.dart';
 import 'package:toast/toast.dart';
 import 'package:qr_mobile_vision/qr_mobile_vision.dart';
 
@@ -29,7 +31,7 @@ class _QrReaderState extends State<QrReader> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Padding(padding: EdgeInsets.only(top: 40.0)),
-          Text('Сканируйте QR-код на крышке сервера для подключения к облаку'),
+          Text(AppLocalizations.of(context).translate('qr')),
           Padding(padding: EdgeInsets.only(top: 20.0)),
           Expanded(
             child: camState
@@ -42,8 +44,11 @@ class _QrReaderState extends State<QrReader> {
                           style: TextStyle(color: Colors.red),
                         ),
                         qrCodeCallback: (code) {
-                          connectToMqtt(code, context, onFailure: () {
-                            Toast.show("Подключение...", context,
+                          /*connectToMqtt(code, context, onFailure: () {
+                            Toast.show(
+                                AppLocalizations.of(context)
+                                    .translate('connecting'),
+                                context,
                                 duration: Toast.LENGTH_LONG);
                             Navigator.pop(context);
                             Navigator.push(
@@ -52,6 +57,7 @@ class _QrReaderState extends State<QrReader> {
                                   builder: (context) => Devices()),
                             );
                           });
+                        */
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -62,8 +68,8 @@ class _QrReaderState extends State<QrReader> {
                     ),
                   )
                 : Center(
-                    child:
-                        Text("Доспуп к камере для этого приложения запрещен"),
+                    child: Text(AppLocalizations.of(context)
+                        .translate('cameraNotAccess')),
                   ),
           ),
         ],

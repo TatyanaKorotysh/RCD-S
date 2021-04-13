@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rcd_s/components/menu.dart';
+import 'package:rcd_s/screens/deviceDetail.dart';
+import 'package:rcd_s/services/translate.dart';
 import 'addDevice.dart';
 
 class Devices extends StatefulWidget {
@@ -10,21 +12,6 @@ class Devices extends StatefulWidget {
 }
 
 class _DevicesState extends State<Devices> {
-  final List<String> data = <String>[
-    "Twitter",
-    "Reddit",
-    "YouTube",
-    "Facebook",
-    "Vimeo",
-    "GitHub",
-    "GitLab",
-    "BitBucket",
-    "LinkedIn",
-    "Medium",
-    "Tumblr",
-    "Instagram",
-    "Pinterest"
-  ];
   // ignore: top_level_function_literal_block
   var sortList = <String>["one", "two", "three"].map((String value) {
     return new DropdownMenuItem<String>(
@@ -45,15 +32,15 @@ class _DevicesState extends State<Devices> {
             Container(
               height: 60.0,
               width: MediaQuery.of(context).size.width,
-              child: _filter(),
+              //child: _filter(),
             ),
             Expanded(
-              child: _grid(),
+              child: _list(),
             ),
           ],
         ),
       ),
-      drawer: Menu('Устройства', context),
+      drawer: Menu(AppLocalizations.of(context).translate('devices'), context),
       floatingActionButton: FloatingActionButton(
         onPressed: _addDevice,
         child: Icon(Icons.add),
@@ -89,28 +76,19 @@ class _DevicesState extends State<Devices> {
     );
   }
 
-  Widget _grid() {
-    final orientation = MediaQuery.of(context).orientation;
-    return GridView.builder(
-      itemCount: data.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: (orientation == Orientation.portrait) ? 2 : 3),
-      itemBuilder: (BuildContext context, int index) {
-        return new Card(
-          child: InkWell(
-              splashColor: Colors.indigo.withAlpha(30),
-              onTap: () {},
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Icon(Icons.alarm),
-                  new Text(data[index]),
-                  new Text('Комната'),
-                ],
-              )),
-        );
-      },
+  Widget _list() {
+    return ListView(
+      children: <Widget>[
+        ListTile(
+          leading: Icon(Icons.devices_rounded),
+          title: Text('Device'),
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return DeviceDetail();
+            }));
+          },
+        ),
+      ],
     );
   }
 

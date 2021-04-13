@@ -8,7 +8,7 @@ Widget input(String lable, TextInputType type, TextEditingController controller,
       keyboardType: type,
       controller: controller,
       obscureText: hide,
-      validator: (value) => (value.isEmpty) ? 'Поле пустое' : null,
+      // validator: (value) => (value.isEmpty) ? 'Поле пустое' : null,
     ),
     padding: EdgeInsets.symmetric(vertical: 16.0),
   );

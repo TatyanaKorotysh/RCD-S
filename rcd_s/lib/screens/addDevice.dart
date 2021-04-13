@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rcd_s/components/input.dart';
+import 'package:rcd_s/services/translate.dart';
 
 class AddDevice extends StatefulWidget {
   AddDevice({Key key}) : super(key: key);
@@ -17,19 +18,10 @@ class _AddDeviceState extends State<AddDevice> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text('Новое устройство'),
-      ),
       body: SingleChildScrollView(
         //возможен scroll
         child: Center(
-          child: _form(),
+          child: Text(AppLocalizations.of(context).translate('devicesSearch')),
         ),
       ),
     );
