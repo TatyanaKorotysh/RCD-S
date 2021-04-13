@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rcd_s/domain/currentUser.dart';
-import 'package:rcd_s/services/auth.dart';
-import 'activateProfile.dart';
 import 'package:rcd_s/components/input.dart';
+import 'package:rcd_s/screens/devices.dart';
+import 'package:rcd_s/services/json.dart';
+import 'package:toast/toast.dart';
 
 class Authorization extends StatefulWidget {
   @override
@@ -15,13 +15,8 @@ class AuthorizationState extends State<Authorization> {
   final _formKey = GlobalKey<FormState>();
   final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
 
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController _loginController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-
-  String _email;
-  String _password;
-
-  AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +27,8 @@ class AuthorizationState extends State<Authorization> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            input("E-mail", TextInputType.emailAddress, _emailController, 10.0,
-                false),
-            input(
-                "Пароль", TextInputType.text, _passwordController, 10.0, true),
+            input("Логин", TextInputType.name, _loginController, false),
+            input("Пароль", TextInputType.text, _passwordController, true),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: MaterialButton(
@@ -50,27 +43,24 @@ class AuthorizationState extends State<Authorization> {
     );
   }
 
-  void submit() async {
-    if (_formKey.currentState.validate()) {
-      _email = _emailController.text;
-      _password = _passwordController.text;
+  void submit() {
+    Future<String> result =
+        JsonService.checkUser(_loginController.text, _passwordController.text);
 
-      if (_email.isEmpty || _password.isEmpty) return null;
+    print(result);
+    result.then((String r) => {
+          if (r == "true")
+            {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Devices()),
+              )
+            }
+          else
+            {Toast.show(r, context, duration: Toast.LENGTH_LONG)}
+        });
 
-      CurrentUser user =
-          await _authService.singIn(_email.trim(), _password.trim());
-      if (user == null) {
-        Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text('Неверный логин и пароль')));
-      } else {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          //проверка на активацию профиля
-          return ActivateProfile();
-        }));
-      }
-
-      _emailController.clear();
-      _passwordController.clear();
-    }
+    _loginController.clear();
+    _passwordController.clear();
   }
 }

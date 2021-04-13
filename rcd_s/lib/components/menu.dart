@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rcd_s/screens/devices.dart';
-import 'package:rcd_s/screens/profile.dart';
-import 'package:rcd_s/services/auth.dart';
 
 class Menu extends StatefulWidget {
   static String currentTitle;
@@ -44,20 +41,24 @@ class _MenuState extends State<Menu> {
             leading: Icon(Icons.supervised_user_circle_rounded),
             title: Text('Профиль'),
             onTap: () {
-              Navigator.push(currentContext,
-                  MaterialPageRoute(builder: (context) {
-                return Profile();
-              }));
+              Navigator.push(
+                  currentContext,
+                  MaterialPageRoute(
+                      builder: (context) {
+                    return null;
+                  } as Widget Function(BuildContext)));
             },
           ),
           ListTile(
             leading: Icon(Icons.supervised_user_circle_rounded),
             title: Text('Устройства'),
             onTap: () {
-              Navigator.push(currentContext,
-                  MaterialPageRoute(builder: (context) {
-                return Devices();
-              }));
+              Navigator.push(
+                  currentContext,
+                  MaterialPageRoute(
+                      builder: (context) {
+                    return null;
+                  } as Widget Function(BuildContext)));
             },
           ),
           ListTile(
@@ -84,9 +85,7 @@ class _MenuState extends State<Menu> {
           ListTile(
             leading: Icon(Icons.supervised_user_circle_rounded),
             title: Text('Выйти'),
-            onTap: () {
-              AuthService().signOut();
-            },
+            onTap: () {},
           ),
         ],
       ),

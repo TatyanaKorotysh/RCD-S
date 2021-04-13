@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Widget input(String lable, TextInputType type, TextEditingController controller,
-    double padding, bool hide) {
+    bool hide) {
   return Container(
     child: TextFormField(
       decoration: new InputDecoration(labelText: lable),
@@ -10,6 +10,6 @@ Widget input(String lable, TextInputType type, TextEditingController controller,
       obscureText: hide,
       validator: (value) => (value.isEmpty) ? 'Поле пустое' : null,
     ),
-    padding: EdgeInsets.symmetric(vertical: padding),
+    padding: EdgeInsets.symmetric(vertical: 16.0),
   );
 }

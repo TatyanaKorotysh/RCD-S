@@ -50,11 +50,10 @@ class _AddDeviceState extends State<AddDevice> {
             child: Column(
               children: <Widget>[
                 input("id устройтва", TextInputType.number, _emailController,
-                    10.0, false),
-                input("Имя устройства", TextInputType.name, _emailController,
-                    10.0, false),
-                input("Комната", TextInputType.name, _emailController, 10.0,
                     false),
+                input("Имя устройства", TextInputType.name, _emailController,
+                    false),
+                input("Комната", TextInputType.name, _emailController, false),
                 TextFormField(
                   decoration: new InputDecoration(labelText: "Комментарий"),
                   maxLines: null,
