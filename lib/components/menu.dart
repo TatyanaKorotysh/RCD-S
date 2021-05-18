@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rcd_s/components/qrReader.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rcd_s/screens/qrReader.dart';
 import 'package:rcd_s/screens/authorization.dart';
 import 'package:rcd_s/screens/devices.dart';
 import 'package:rcd_s/screens/groups.dart';
@@ -35,17 +36,27 @@ class _MenuState extends State<Menu> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
+            padding: EdgeInsets.all(20),
             child: Text(
               '$currentTitle',
-              style: TextStyle(fontSize: 20.0, color: Colors.white),
+              style: TextStyle(fontSize: 26.0, color: Colors.white),
             ),
             decoration: BoxDecoration(
               color: Theme.of(context).accentColor,
             ),
           ),
+          Padding(padding: EdgeInsets.only(top: 20)),
           ListTile(
-            leading: Icon(Icons.devices_other_rounded),
-            title: Text('Устройства'),
+            //leading: Icon(Icons.devices_other_rounded),
+            leading: SvgPicture.asset(
+              'assets/SVG/devices.svg',
+              color: Color.fromARGB(255, 56, 140, 203),
+              width: 30,
+            ),
+            title: Text(
+              'Устройства',
+              style: TextStyle(fontSize: 16),
+            ),
             onTap: () {
               Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
@@ -53,9 +64,18 @@ class _MenuState extends State<Menu> {
               }));
             },
           ),
+          Padding(padding: EdgeInsets.only(top: 20)),
           ListTile(
-            leading: Icon(Icons.schedule_rounded),
-            title: Text('Группы'),
+            //leading: Icon(Icons.schedule_rounded),
+            leading: SvgPicture.asset(
+              'assets/SVG/group.svg',
+              color: Color.fromARGB(255, 56, 140, 203),
+              width: 30,
+            ),
+            title: Text(
+              'Группы',
+              style: TextStyle(fontSize: 16),
+            ),
             onTap: () {
               Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
@@ -63,9 +83,18 @@ class _MenuState extends State<Menu> {
               }));
             },
           ),
+          Padding(padding: EdgeInsets.only(top: 20)),
           ListTile(
-            leading: Icon(Icons.supervised_user_circle_rounded),
-            title: Text('Пользователи'),
+            //leading: Icon(Icons.supervised_user_circle_rounded),
+            leading: SvgPicture.asset(
+              'assets/SVG/users.svg',
+              color: Color.fromARGB(255, 56, 140, 203),
+              width: 30,
+            ),
+            title: Text(
+              'Пользователи',
+              style: TextStyle(fontSize: 16),
+            ),
             onTap: () {
               Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
@@ -73,9 +102,17 @@ class _MenuState extends State<Menu> {
               }));
             },
           ),
+          Padding(padding: EdgeInsets.only(top: 20)),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Настройки'),
+            leading: Icon(
+              Icons.settings,
+              color: Color.fromARGB(255, 56, 140, 203),
+              size: 30,
+            ),
+            title: Text(
+              'Настройки',
+              style: TextStyle(fontSize: 16),
+            ),
             onTap: () {
               Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
@@ -83,23 +120,18 @@ class _MenuState extends State<Menu> {
               }));
             },
           ),
+          Padding(padding: EdgeInsets.only(top: 20)),
           ListTile(
-            leading: Icon(Icons.exit_to_app_rounded),
-            title: Text('Выйти'),
+            leading: Icon(Icons.exit_to_app_rounded,
+                color: Color.fromARGB(255, 56, 140, 203), size: 30),
+            title: Text(
+              'Выйти',
+              style: TextStyle(fontSize: 16),
+            ),
             onTap: () {
               Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
                 return Authorization();
-              }));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.exit_to_app_rounded),
-            title: Text('QR-code'),
-            onTap: () {
-              Navigator.push(currentContext,
-                  MaterialPageRoute(builder: (context) {
-                return QrReader();
               }));
             },
           ),

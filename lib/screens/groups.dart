@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:rcd_s/components/menu.dart';
 import 'package:rcd_s/devices/command_manager.dart';
 import 'package:rcd_s/screens/deviceDetail.dart';
+import 'package:rcd_s/services/isConnect.dart';
 import 'package:rcd_s/services/translate.dart';
 import 'package:rcd_s/services/globals.dart' as globals;
 
@@ -37,6 +39,8 @@ class _GroupsState extends State<Groups> {
 
   @override
   Widget build(BuildContext context) {
+    IsConnect.initConnectivity(context);
+
     commandManager = Provider.of<CommandManager>(context);
     commandManager.sendReadGroupsCommand();
     return _body();
@@ -135,10 +139,15 @@ class _GroupsState extends State<Groups> {
                     ),
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: ListTile(
-                      leading: Icon(
+                      /*leading: Icon(
                         Icons.device_unknown_rounded,
                         color: Color.fromARGB(255, 56, 140, 203),
                         size: 40,
+                      ),*/
+                      leading: SvgPicture.asset(
+                        'assets/SVG/group.svg',
+                        color: Color.fromARGB(255, 56, 140, 203),
+                        width: 35,
                       ),
                       title: Text(
                         snapshot.data[index].name,

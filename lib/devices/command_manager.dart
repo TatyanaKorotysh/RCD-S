@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/cupertino.dart';
 import 'package:rcd_s/connections/mqttConnect.dart';
 import 'package:rcd_s/devices/commands.dart';
 import 'package:rcd_s/devices/esp/esp_commands.dart';
@@ -15,7 +16,7 @@ import 'package:rcd_s/models/package_type.dart';
 import 'package:rcd_s/models/payload.dart';
 import 'package:rcd_s/storage/settings_storage.dart';
 
-class CommandManager {
+class CommandManager extends ChangeNotifier {
   var _currSeqId = 0;
 
   MqttManager _mqttConnection = MqttManager();
@@ -98,7 +99,7 @@ class CommandManager {
     return [firstByte, secondByte];
   }
 
-  Future<bool> sendReadDeviceCommand() {
+  Future<void> sendReadDeviceCommand() {
     var commandType = CommandType.CMD_READ.value;
     var commandSeqId = getNextCommandSeqId();
 
@@ -173,6 +174,8 @@ class CommandManager {
 
   Future<void> subscribeForMqttEvents() {
     mqttMessageStream.listen((MqttResponse mqttResponse) {
+      //print("+++++++++++++++++++++++++");
+      // print(mqttResponse);
       List<int> dataPackage = mqttResponse.payload.codeUnits;
       return decodeDataPackage(dataPackage, topic: mqttResponse.topic);
     });
@@ -479,7 +482,7 @@ class CommandManager {
   }
 
   List<Device> getDeviceListByPayload(List<int> payload) {
-    List<Device> deviceList = List<Device>();
+    var deviceList = List<Device>();
     var deviceCount = payload.length / 4;
     for (var i = 0; i < deviceCount; i++) {
       var devicePayload = payload.takeAndRemove(4);

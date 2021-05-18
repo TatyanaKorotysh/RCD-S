@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rcd_s/components/menu.dart';
 import 'package:rcd_s/screens/addUser.dart';
 import 'package:rcd_s/screens/userDetail.dart';
@@ -58,11 +59,22 @@ class _UsersState extends State<Users> {
                       ),
                       width: MediaQuery.of(context).size.width * 0.9,
                       child: ListTile(
-                        leading: Icon(
+                        /*leading: Icon(
                           Icons.supervised_user_circle,
                           color: Color.fromARGB(255, 56, 140, 203),
                           size: 40,
-                        ),
+                        ),*/
+                        leading: snapshot.data[key][1]
+                            ? SvgPicture.asset(
+                                'assets/SVG/admin.svg',
+                                color: Color.fromARGB(255, 56, 140, 203),
+                                width: 35,
+                              )
+                            : SvgPicture.asset(
+                                'assets/SVG/user.svg',
+                                color: Color.fromARGB(255, 56, 140, 203),
+                                width: 35,
+                              ),
                         title: Text(
                           "$key",
                           style: TextStyle(fontSize: 18),

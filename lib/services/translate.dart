@@ -72,6 +72,7 @@ class AppLanguage extends ChangeNotifier {
   Locale _appLocale = (globals.lang == "Русский") ? Locale('ru') : Locale('en');
 
   Locale get appLocal => _appLocale ?? Locale("ru");
+
   fetchLocale() async {
     var prefs = await SharedPreferences.getInstance();
     if (prefs.getString('language_code') == null) {

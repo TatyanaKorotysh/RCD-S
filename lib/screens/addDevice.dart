@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rcd_s/components/input.dart';
+import 'package:rcd_s/services/isConnect.dart';
 import 'package:rcd_s/services/translate.dart';
 
 class AddDevice extends StatefulWidget {
@@ -17,6 +18,7 @@ class _AddDeviceState extends State<AddDevice> {
 
   @override
   Widget build(BuildContext context) {
+    IsConnect.initConnectivity(context);
     return Scaffold(
       body: SingleChildScrollView(
         //возможен scroll

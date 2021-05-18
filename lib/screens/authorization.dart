@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:rcd_s/components/input.dart';
 import 'package:rcd_s/components/simpleButton.dart';
+import 'package:rcd_s/connections/mqttConnect.dart';
 //import 'package:rcd_s/connections/mqttAppState.dart';
 import 'package:rcd_s/screens/devices.dart';
+import 'package:rcd_s/services/isConnect.dart';
 import 'package:rcd_s/services/json.dart';
 import 'package:rcd_s/services/theme.dart';
 import 'package:rcd_s/services/translate.dart';
@@ -36,6 +39,8 @@ class AuthorizationState extends State<Authorization> {
 
   @override
   Widget build(BuildContext context) {
+    IsConnect.initConnectivity(context);
+
     _themeChanger = Provider.of<ThemeChanger>(context);
     appLanguage = Provider.of<AppLanguage>(context);
 
@@ -107,6 +112,8 @@ class AuthorizationState extends State<Authorization> {
     result.then((String r) => {
           if (r == "true")
             {
+              JsonService.readQr()
+                  .then((value) => {MqttManager.initMqttConnect(value)}),
               JsonService.getPreferences().then(
                 (pref) => {
                   globals.theme = pref[globals.login][1],

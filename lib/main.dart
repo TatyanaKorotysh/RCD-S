@@ -44,9 +44,12 @@ void main() async {
   CommandManager commandManager =
       CommandManager(mqttManager, settings8767Storage);
 
+  //CommandManagerChanger commandManagerChanger;
+
   runApp(MultiProvider(
     providers: [
-      Provider<CommandManager>(
+      ListenableProvider<CommandManager>(
+        //ChangeNotifierProvider<CommandManagerChanger>(
         create: (context) => commandManager,
       ),
       ChangeNotifierProvider<AppLanguage>(

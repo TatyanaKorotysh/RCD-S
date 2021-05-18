@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:qr_mobile_vision/qr_camera.dart';
+import 'package:rcd_s/connections/mqttConnect.dart';
+import 'package:rcd_s/screens/authorization.dart';
+import 'package:rcd_s/services/json.dart';
 import 'package:rcd_s/services/translate.dart';
 import 'package:qr_mobile_vision/qr_mobile_vision.dart';
 
@@ -40,7 +43,14 @@ class _QrReaderState extends State<QrReader> {
                           style: TextStyle(color: Colors.red),
                         ),
                         qrCodeCallback: (code) {
+                          JsonService.writeQr(code);
+                          print(code);
                           Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Authorization()),
+                          );
                           /*connectToMqtt(code, context, onFailure: () {
                             Toast.show(
                                 AppLocalizations.of(context)

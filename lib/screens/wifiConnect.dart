@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rcd_s/components/input.dart';
-import 'package:rcd_s/components/qrReader.dart';
+import 'package:rcd_s/screens/qrReader.dart';
 import 'package:rcd_s/components/simpleButton.dart';
 import 'package:rcd_s/connections/wifiConnect.dart';
 import 'package:rcd_s/models/wifiModel.dart';

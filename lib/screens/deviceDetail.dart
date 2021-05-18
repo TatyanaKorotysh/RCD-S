@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:rcd_s/devices/command_manager.dart';
 import 'package:rcd_s/devices/commands.dart';
 import 'package:rcd_s/models/device.dart';
+import 'package:rcd_s/services/isConnect.dart';
 import 'package:rcd_s/services/translate.dart';
 import 'package:rcd_s/services/globals.dart' as globals;
 
@@ -28,9 +29,9 @@ class _DeviceDetailState extends State<DeviceDetail> {
   double pos = 0;
   double startPos = 0;
   double lefTime = 0;
-  int step = 0;
+  //int step = 0;
   MoveType currentMove = MoveType.stop;
-  Timer currUpdateTimer;
+  //Timer currUpdateTimer;
   StreamSubscription subscription;
   DateTime startUpdateTime;
 
@@ -59,12 +60,14 @@ class _DeviceDetailState extends State<DeviceDetail> {
 
   @override
   Widget build(BuildContext context) {
+    IsConnect.initConnectivity(context);
+
     subscription = commandManager.devConfig.listen((event) {
       setState(() {
         pos = event.curPosPercents.toDouble();
         startPos = event.curPosPercents.toDouble();
         lefTime = event.timeExe.toDouble();
-        step = (lefTime / pos).round() * 10;
+        //step = (lefTime / pos).round() * 10;
       });
       if (currentMove == MoveType.stop) {
         stopMove();

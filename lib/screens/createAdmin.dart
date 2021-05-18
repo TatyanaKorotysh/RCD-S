@@ -5,6 +5,7 @@ import 'package:rcd_s/components/input.dart';
 import 'package:rcd_s/components/simpleButton.dart';
 import 'package:rcd_s/models/userModel.dart';
 import 'package:rcd_s/screens/authorization.dart';
+import 'package:rcd_s/screens/qrReader.dart';
 import 'package:rcd_s/services/json.dart';
 import 'package:rcd_s/services/translate.dart';
 
@@ -103,7 +104,8 @@ class _CreateAdminState extends State<CreateAdmin> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Authorization()),
+      //MaterialPageRoute(builder: (context) => Authorization()),
+      MaterialPageRoute(builder: (context) => QrReader()),
     );
   }
 }

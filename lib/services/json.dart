@@ -13,6 +13,7 @@ class JsonService {
     new File(directory.path + '/data/users.json').create(recursive: true);
     new File(directory.path + '/data/wifi.json').create(recursive: true);
     new File(directory.path + '/data/preferences.json').create(recursive: true);
+    new File(directory.path + '/data/connection.json').create(recursive: true);
   }
 
   static deleteFiles() async {
@@ -20,6 +21,7 @@ class JsonService {
     new File(directory.path + '/data/users.json').delete();
     new File(directory.path + '/data/wifi.json').delete();
     new File(directory.path + '/data/preferences.json').delete();
+    new File(directory.path + '/data/connection.json').delete();
   }
 
   static Future<bool> createUser(Map<String, dynamic> user) async {
@@ -124,6 +126,8 @@ class JsonService {
 
     jsonString = json.encode(usersMap);
     file.writeAsString(jsonString);
+
+    deletePreferences(key);
   }
 
   static Future<bool> createWifi(Map<String, dynamic> wifi) async {
@@ -195,6 +199,19 @@ class JsonService {
     return prefMap;
   }
 
+  static void deletePreferences(String key) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File file = File(directory.path + '/data/preferences.json');
+
+    String jsonString = await file.readAsString();
+    var usersMap = jsonDecode(jsonString);
+
+    usersMap.remove('$key');
+
+    jsonString = json.encode(usersMap);
+    file.writeAsString(jsonString);
+  }
+
   static Future<void> wifiConnect(BuildContext context) async {
     final directory = await getApplicationDocumentsDirectory();
     final File file = File(directory.path + '/data/wifi.json');
@@ -204,5 +221,23 @@ class JsonService {
       var wifiMap = jsonDecode(jsonString);
       connectToWiFi(wifiMap["ssid"], wifiMap["password"], context);
     }
+  }
+
+  static Future<void> writeQr(String data) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File file = File(directory.path + '/data/connection.json');
+    file.writeAsString(data);
+  }
+
+  static Future<Map> readQr() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File file = File(directory.path + '/data/connection.json');
+
+    String jsonString = await file.readAsString();
+    print(jsonString);
+
+    var prefMap = jsonDecode(jsonString);
+
+    return prefMap;
   }
 }

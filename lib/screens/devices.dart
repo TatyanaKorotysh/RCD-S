@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:rcd_s/components/menu.dart';
 import 'package:rcd_s/devices/command_manager.dart';
 import 'package:rcd_s/models/device.dart';
 import 'package:rcd_s/screens/deviceDetail.dart';
 import 'package:rcd_s/services/globals.dart' as globals;
+import 'package:rcd_s/services/isConnect.dart';
 import 'package:rcd_s/services/translate.dart';
 import 'addDevice.dart';
 
@@ -17,6 +19,7 @@ class Devices extends StatefulWidget {
 
 class _DevicesState extends State<Devices> {
   CommandManager commandManager;
+  //CommandManagerChanger commandManagerChanger;
 
   @override
   void initState() {
@@ -39,6 +42,8 @@ class _DevicesState extends State<Devices> {
 
   @override
   Widget build(BuildContext context) {
+    IsConnect.initConnectivity(context);
+
     commandManager = Provider.of<CommandManager>(context);
     commandManager.sendReadDeviceCommand();
     return _body();
@@ -148,10 +153,20 @@ class _DevicesState extends State<Devices> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Icon(
+                                  /*Icon(
                                     Icons.device_unknown_rounded,
                                     color: Color.fromARGB(255, 56, 140, 203),
                                     size: 40,
+                                  ),*/
+                                  SvgPicture.asset(
+                                    (snapshot.data[index].type == 1)
+                                        ? 'assets/SVG/8113.svg'
+                                        : (snapshot.data[index].type == 2)
+                                            ? 'assets/SVG/8112.svg'
+                                            : 'assets/SVG/8117.svg',
+                                    //'assets/SVG/devices.svg',
+                                    color: Color.fromARGB(255, 56, 140, 203),
+                                    width: 50,
                                   ),
                                   Padding(padding: EdgeInsets.only(right: 10)),
                                   Text(
