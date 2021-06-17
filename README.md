@@ -1,5 +1,6 @@
 # RCD-S. Дипломный проект на платформе flutter
-RCD-S - Remote Control Device System - приложения для управления системой умного дома.
+RCD-S - Remote Control Device System - мобильное приложение для управления системой умного дома.
+
 - flutter
 - mqtt
 - подключение к mqtt через qr-код
