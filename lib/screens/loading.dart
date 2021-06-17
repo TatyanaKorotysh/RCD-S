@@ -25,7 +25,7 @@ class _LoadingState extends State<Loading> {
 
     return Scaffold(
       body: FutureBuilder<bool>(
-        future: JsonService.isAdminExist(),
+        future: JsonService.isQRExist(),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data == true) {

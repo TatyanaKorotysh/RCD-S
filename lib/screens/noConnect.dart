@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:rcd_s/components/simpleButton.dart';
 import 'package:rcd_s/services/globals.dart' as globals;
 import 'package:rcd_s/services/isConnect.dart';
+import 'package:rcd_s/services/translate.dart';
 
 class NoConnect extends StatefulWidget {
   _NoConnectState createState() => _NoConnectState();
@@ -38,7 +39,7 @@ class _NoConnectState extends State<NoConnect> {
                         width: MediaQuery.of(context).size.height * 0.5),
                 Padding(padding: EdgeInsets.only(top: 50)),
                 Text(
-                  "Для использования приложения необходимо подключение к Интернет. Пожалуйста убедитесь что сеть доступна",
+                  AppLocalizations.of(context).translate('noWifi'),
                   textAlign: TextAlign.center,
                 ),
                 Padding(padding: EdgeInsets.only(top: 20)),

@@ -122,7 +122,6 @@ class _PreferencesState extends State<Preferences> {
                             setState(() => _themeValue = "light");
                           }
                           print("onCchange:");
-                          print(_themeValue);
                         },
                         icon: const Icon(Icons.keyboard_arrow_down_rounded),
                         style: const TextStyle(
@@ -186,7 +185,7 @@ class _PreferencesState extends State<Preferences> {
         .then((value) {
       if (value) {
         Toast.show(
-          "Настроки успешно сохранены",
+          AppLocalizations.of(context).translate('prefSaved'),
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.BOTTOM,

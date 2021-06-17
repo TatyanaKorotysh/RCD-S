@@ -175,6 +175,7 @@ class Errors extends Equatable {
   static const Errors ERROR_GROUP_DEV_EXIST = const Errors._(43);
   static const Errors ERROR_ST_PROC = const Errors._(-120);
   static const Errors ERROR_DEV_RCRD_NOT_FOUND = const Errors._(6);
+  static const Errors ERROR_GROUP_NOT_EMPTY = const Errors._(47);
 
   final _subCmdValue;
   final _cmd = 128;
@@ -186,7 +187,8 @@ class Errors extends Equatable {
     ERROR_ASK_TIMEOUT,
     ERROR_EXIST,
     ERROR__BAD_ACCESS_TYPE,
-    ERROR_GROUP_DEV_EXIST
+    ERROR_GROUP_DEV_EXIST,
+    ERROR_GROUP_NOT_EMPTY
   ];
 
   const Errors._(this._subCmdValue);
@@ -214,6 +216,8 @@ class Errors extends Equatable {
       return "ERROR__BAD_ACCESS_TYPE";
     } else if (value == Errors.ERROR_GROUP_DEV_EXIST.value) {
       return "ERROR_GROUP_DEV_EXIST";
+    } else if (value == Errors.ERROR_GROUP_NOT_EMPTY.value) {
+      return "ERROR_GROUP_NOT_EMPTY";
     }
 
     return "$runtimeType ${_subCmdValue.toString()}";

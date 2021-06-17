@@ -41,12 +41,8 @@ class MqttManager {
     client = MqttServerClient(_host, _identifier);
 
     if (client.connectionStatus.state != MqttConnectionState.connecting &&
-        client.connectionStatus.state != MqttConnectionState.connected) {
-      print("_______________________________________________________________");
-      print(client.connectionStatus.state);
-      print(_host);
-      print(client);
-
+        client.connectionStatus.state != MqttConnectionState.connected &&
+        client.connectionStatus.state != MqttConnectionState.disconnecting) {
       client.logging(on: false);
       client.keepAlivePeriod = 60;
       client.onDisconnected = onDisconnected;
@@ -97,7 +93,6 @@ class MqttManager {
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
       final MqttPublishMessage recMess = c[0].payload;
 
-      //print(recMess.payload.message);
       final String pt =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       _streamMessageController.add(MqttResponse(pt, topic));
@@ -113,7 +108,7 @@ class MqttManager {
   }
 
   void publish(List<int> message) async {
-    print('EXAMPLE::PUBLISHING');
+    print('EXAMPLE::PUBLISHING...');
 
     /*if (client.connectionStatus.state == MqttConnectionState.connecting ||
         client.connectionStatus.state == MqttConnectionState.disconnecting) {
@@ -126,10 +121,14 @@ class MqttManager {
     // if (client.connectionStatus.state == MqttConnectionState.connecting) {
     //   Duration(seconds: 1);
     // }
-    if (client.connectionStatus.state != MqttConnectionState.connected) {
-      client.disconnect();
-      await main();
-    }
+    //if (client.connectionStatus.state != MqttConnectionState.connected) {
+    //  client.disconnect();
+    //}
+    if (client.connectionStatus.state != MqttConnectionState.connected)
+      do {
+        await main();
+        print(client.connectionStatus.state);
+      } while (client.connectionStatus.state != MqttConnectionState.connected);
     //});
     print(client.connectionStatus.state);
     print('EXAMPLE::PUBLISH');

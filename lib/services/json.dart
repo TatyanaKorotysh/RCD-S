@@ -43,7 +43,6 @@ class JsonService {
     }
 
     jsonString = json.encode(usersMap);
-    print(jsonString);
     file.writeAsString(jsonString);
 
     applyPreferences(
@@ -53,9 +52,9 @@ class JsonService {
     return true;
   }
 
-  static Future<bool> isAdminExist() async {
+  static Future<bool> isQRExist() async {
     final directory = await getApplicationDocumentsDirectory();
-    final File file = File(directory.path + '/data/users.json');
+    final File file = File(directory.path + '/data/connection.json');
 
     if (file.existsSync()) {
       String jsonString = await file.readAsString();
@@ -82,7 +81,6 @@ class JsonService {
       if (password == usersMap["$login"][0]) {
         globals.isAdmin = usersMap["$login"][1];
         globals.login = login;
-        print(globals.login);
         return "true";
       } else {
         return AppLocalizations.of(context).translate('paswordError');
@@ -159,22 +157,16 @@ class JsonService {
     final File file = File(directory.path + '/data/preferences.json');
 
     String jsonString = await file.readAsString();
-    print("______________________");
-    print(jsonString);
     var prefMap;
 
     if (jsonString == "") {
       prefMap = pref;
     } else {
       prefMap = jsonDecode(jsonString);
-      print(prefMap);
-      print(pref.keys.first);
-      print(pref["${pref.keys.first}"]);
       prefMap["${pref.keys.first}"] = pref["${pref.keys.first}"];
     }
 
     jsonString = json.encode(prefMap);
-    print(jsonString);
     file.writeAsString(jsonString);
 
     return true;
@@ -185,14 +177,12 @@ class JsonService {
     final File file = File(directory.path + '/data/preferences.json');
 
     String jsonString = await file.readAsString();
-    print(jsonString);
 
     if (jsonString == "") {
       await applyPreferences(
           PreferencesModel(globals.login.trim(), "Русский", "light").toJson());
       String jsonString = await file.readAsString();
     }
-    print(jsonString);
 
     var prefMap = jsonDecode(jsonString);
 
@@ -235,8 +225,8 @@ class JsonService {
 
     String jsonString = await file.readAsString();
     print(jsonString);
-
     var prefMap = jsonDecode(jsonString);
+    print(prefMap);
 
     return prefMap;
   }

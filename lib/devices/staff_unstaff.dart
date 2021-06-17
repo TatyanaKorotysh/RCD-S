@@ -66,7 +66,6 @@ extension StaffBytes on List<int> {
       }
     }
 
-//    print(crc);
     return crc;
   }
 }

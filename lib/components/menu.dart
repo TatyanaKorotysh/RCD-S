@@ -6,6 +6,7 @@ import 'package:rcd_s/screens/devices.dart';
 import 'package:rcd_s/screens/groups.dart';
 import 'package:rcd_s/screens/preferences.dart';
 import 'package:rcd_s/screens/users.dart';
+import 'package:rcd_s/services/translate.dart';
 
 class Menu extends StatefulWidget {
   static String currentTitle;
@@ -54,14 +55,18 @@ class _MenuState extends State<Menu> {
               width: 30,
             ),
             title: Text(
-              'Устройства',
+              AppLocalizations.of(context).translate('devices'),
               style: TextStyle(fontSize: 16),
             ),
             onTap: () {
-              Navigator.push(currentContext,
+              /*Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
                 return Devices();
-              }));
+              }));*/
+              Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (context) {
+                return Devices();
+              }), (route) => false);
             },
           ),
           Padding(padding: EdgeInsets.only(top: 20)),
@@ -73,14 +78,18 @@ class _MenuState extends State<Menu> {
               width: 30,
             ),
             title: Text(
-              'Группы',
+              AppLocalizations.of(context).translate('groups'),
               style: TextStyle(fontSize: 16),
             ),
             onTap: () {
-              Navigator.push(currentContext,
+              /*Navigator.push(currentContext,
                   MaterialPageRoute(builder: (context) {
                 return Groups();
-              }));
+              }));*/
+              Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (context) {
+                return Groups();
+              }), (route) => false);
             },
           ),
           Padding(padding: EdgeInsets.only(top: 20)),
@@ -92,7 +101,7 @@ class _MenuState extends State<Menu> {
               width: 30,
             ),
             title: Text(
-              'Пользователи',
+              AppLocalizations.of(context).translate('users'),
               style: TextStyle(fontSize: 16),
             ),
             onTap: () {
@@ -110,7 +119,7 @@ class _MenuState extends State<Menu> {
               size: 30,
             ),
             title: Text(
-              'Настройки',
+              AppLocalizations.of(context).translate('settings'),
               style: TextStyle(fontSize: 16),
             ),
             onTap: () {
@@ -125,7 +134,7 @@ class _MenuState extends State<Menu> {
             leading: Icon(Icons.exit_to_app_rounded,
                 color: Color.fromARGB(255, 56, 140, 203), size: 30),
             title: Text(
-              'Выйти',
+              AppLocalizations.of(context).translate('logOut'),
               style: TextStyle(fontSize: 16),
             ),
             onTap: () {

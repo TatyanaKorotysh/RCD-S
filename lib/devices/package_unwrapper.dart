@@ -19,7 +19,6 @@ class PackageUnwrapper {
       throw Exception("asds");
 
     var realBodyData = package.sublist(1, package.length - 1);
-    //print(realBodyData);
 
     realBodyData = realBodyData.unstaffBytes();
     checkIsCrcValid(realBodyData);

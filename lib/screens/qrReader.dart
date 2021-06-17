@@ -7,6 +7,7 @@ import 'package:rcd_s/screens/authorization.dart';
 import 'package:rcd_s/services/json.dart';
 import 'package:rcd_s/services/translate.dart';
 import 'package:qr_mobile_vision/qr_mobile_vision.dart';
+import 'package:toast/toast.dart';
 
 class QrReader extends StatefulWidget {
   @override
@@ -30,7 +31,11 @@ class _QrReaderState extends State<QrReader> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Padding(padding: EdgeInsets.only(top: 40.0)),
-          Text(AppLocalizations.of(context).translate('qr')),
+          Text(
+            AppLocalizations.of(context).translate('qr'),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
           Padding(padding: EdgeInsets.only(top: 20.0)),
           Expanded(
             child: camState
@@ -43,28 +48,25 @@ class _QrReaderState extends State<QrReader> {
                           style: TextStyle(color: Colors.red),
                         ),
                         qrCodeCallback: (code) {
-                          JsonService.writeQr(code);
-                          print(code);
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Authorization()),
-                          );
-                          /*connectToMqtt(code, context, onFailure: () {
-                            Toast.show(
-                                AppLocalizations.of(context)
-                                    .translate('connecting'),
-                                context,
-                                duration: Toast.LENGTH_LONG);
+                          var sub = code.substring(0, 5);
+                          if (sub == "rcd_s") {
+                            var mes = code.substring(5);
+                            JsonService.writeQr(mes);
                             Navigator.pop(context);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Devices()),
+                                  builder: (context) => Authorization()),
                             );
-                          });
-                        */
+                          } else {
+                            Toast.show(
+                              AppLocalizations.of(context).translate('qrError'),
+                              context,
+                              duration: Toast.LENGTH_LONG,
+                              gravity: Toast.TOP,
+                              backgroundColor: Color(0xFFBF360C),
+                            );
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(

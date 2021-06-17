@@ -14,6 +14,8 @@ import 'package:rcd_s/models/group.dart';
 import 'package:rcd_s/models/mqtt_response.dart';
 import 'package:rcd_s/models/package_type.dart';
 import 'package:rcd_s/models/payload.dart';
+import 'package:rcd_s/storage/group_storage.dart';
+import 'package:rcd_s/storage/local_storage.dart';
 import 'package:rcd_s/storage/settings_storage.dart';
 
 class CommandManager extends ChangeNotifier {
@@ -23,16 +25,28 @@ class CommandManager extends ChangeNotifier {
   var commandStorage = CommandStorage();
   Settings8767Storage _settings8767storage;
 
-  StreamController<List> _listStreamController;
+  StreamController<List> _deviceStreamController;
+  StreamController<List> _errorStreamController;
+  StreamController<List> _groupStreamController;
   StreamController<DeviceControlConfig> _devConfigStreamController;
   Stream<List> deviceListStream;
   Stream<List> groupListStream;
   Stream<DeviceControlConfig> devConfig;
+  Stream<List> errorStream;
+
+  Group groupForReadDevices;
+  Group groupForAddDevices;
+  Group groupForDelete;
+  Device deviceForDelete;
+  Group groupForDeleteDevice;
+  Device deviceForDeleteFromGroup;
+  DeviceLocalStorage _deviceStorage;
+  GroupLocalStorage _groupStorage;
 
   CommandManager(
-    // DeviceLocalStorage deviceLocalStorage,
+    DeviceLocalStorage deviceLocalStorage,
     //TimerLocalStorage timerStorage,
-    // GroupLocalStorage groupStorage,
+    GroupLocalStorage groupStorage,
     MqttManager connectionController,
     Settings8767Storage settings8767storage,
     //UserCredentialsStorage userCredentialsStorage,
@@ -41,9 +55,9 @@ class CommandManager extends ChangeNotifier {
     // RcLocalStorage rcLocalStorage,
     // RcButtonLocalStorage rcButtonLocalStorage
   ) {
-    // _deviceStorage = deviceLocalStorage;
+    _deviceStorage = deviceLocalStorage;
     //  _timerStorage = timerStorage;
-    //  _groupStorage = groupStorage;
+    _groupStorage = groupStorage;
     _settings8767storage = settings8767storage;
     // _userCredentialsStorage = userCredentialsStorage;
     //  _userLocalStorage = userLocalStorage;
@@ -52,11 +66,14 @@ class CommandManager extends ChangeNotifier {
     // _rcStorage = rcLocalStorage;
     // _rcButtonLocalStorage = rcButtonLocalStorage;
     // subscribeForSocketsEvents();
-    _listStreamController = StreamController.broadcast();
+    _deviceStreamController = StreamController.broadcast();
+    _groupStreamController = StreamController.broadcast();
     _devConfigStreamController = StreamController.broadcast();
-    deviceListStream = _listStreamController.stream;
-    groupListStream = _listStreamController.stream;
+    _errorStreamController = StreamController.broadcast();
+    deviceListStream = _deviceStreamController.stream;
+    groupListStream = _groupStreamController.stream;
     devConfig = _devConfigStreamController.stream;
+    errorStream = _errorStreamController.stream;
     subscribeForMqttEvents();
   }
 
@@ -112,6 +129,23 @@ class CommandManager extends ChangeNotifier {
     _mqttConnection.publish(package.toByteArray());
   }
 
+  Future loadCurrentState8113(Device device) {
+    return _loadParametersFromDevice(device, EspTypeCommand.ED_STATE);
+  }
+
+  Future _loadParametersFromDevice(Device device, EspTypeCommand cmd) {
+    var commandType = CommandType.CMD_READ.value;
+    var commandSeqId = getNextCommandSeqId();
+
+    var package = ModemPackage.createEventPackageByTypeCommand(
+        cmd, commandType, commandSeqId, (device == null) ? [] : device.payload);
+
+    commandStorage.storeCommand(commandSeqId, cmd, null);
+    _mqttConnection.publish(package.toByteArray());
+
+    //return completer.completer.future;
+  }
+
   Future<bool> sendMessageToDevice(Device device, EspCommand cmd, {int flags}) {
     if (device != null) {
       var commandType = CommandType.CMD_WRITE.value;
@@ -119,9 +153,6 @@ class CommandManager extends ChangeNotifier {
       var payload = device.payload;
 
       var package;
-
-      // print(commandType);
-      // print(payload);
 
       if (flags != null) {
         package = ModemPackage.createEventPackageWithFlags(
@@ -139,6 +170,84 @@ class CommandManager extends ChangeNotifier {
     }
   }
 
+  Future<bool> sendDeleteCommand(Device device, bool isHardDelete) async {
+    var commandType =
+        isHardDelete ? CommandType.CMD_READ.value : CommandType.CMD_WRITE.value;
+    var commandSeqId = getNextCommandSeqId();
+    //var completer = getCompleter<bool>();
+
+    var payload = device.payload;
+
+    var cmd = EspNetCmd.ESP_CMD_DEL_DEV;
+
+    var package = ModemPackage.createEventPackageDeleteDevice(
+        payload, cmd, commandType, commandSeqId);
+
+    commandStorage.storeCommand(
+        commandSeqId, cmd, null /*, completer: completer*/);
+
+    deviceForDelete = device;
+
+    _mqttConnection.publish(package.toByteArray());
+    //_connectionController.sendCommand(package.toByteArray(),
+    //  completer: completer);
+
+    //return completer.completer.future;
+  }
+
+  sendAddDeviceCommand() {
+    var commandType = CommandType.CMD_WRITE.value;
+    var commandSeqId = getNextCommandSeqId();
+
+    var cmd = EspNetCmd.ESP_CMD_ADD_DEV;
+
+    var package = ModemPackageWithoutPayload.createEventPackageAddDevice(
+        cmd, commandType, commandSeqId);
+
+    commandStorage.storeCommand(commandSeqId, cmd, null);
+    //_connectionController.sendCommand(package.toByteArray());
+    _mqttConnection.publish(package.toByteArray());
+  }
+
+  Future<bool> sendCreateGroupCommand(int groupId) async {
+    var commandType = CommandType.CMD_WRITE.value;
+    var commandSeqId = getNextCommandSeqId();
+    //var completer = getCompleter<bool>();
+    var cmd = EspTypeCommand.MODEM_GROUP_ADD;
+
+    var package = ModemPackage.createEventPackage(
+        cmd, commandType, commandSeqId, GroupInfo(groupId).toBytes());
+
+    commandStorage.storeCommand(
+        commandSeqId, cmd, null /*, completer: completer*/);
+    // _connectionController.sendCommand(package.toByteArray(),
+    //     completer: completer);
+
+    _mqttConnection.publish(package.toByteArray());
+
+    //return completer.completer.future;
+  }
+
+  Future<bool> sendDeleteGroupCommand(Group group) async {
+    var commandType = CommandType.CMD_WRITE.value;
+    var commandSeqId = getNextCommandSeqId();
+    //var completer = getCompleter<bool>();
+    var cmd = EspTypeCommand.MODEM_GROUP_RM;
+
+    groupForDelete = group;
+    var package = ModemPackage.createEventPackage(
+        cmd, commandType, commandSeqId, GroupInfo(group.id).toBytes());
+
+    commandStorage.storeCommand(
+        commandSeqId, cmd, null /*, completer: completer*/);
+    //_connectionController.sendCommand(package.toByteArray(),
+    //    completer: completer);
+
+    _mqttConnection.publish(package.toByteArray());
+
+    //return completer.completer.future;
+  }
+
   Future<bool> sendReadGroupsCommand() {
     var commandType = CommandType.CMD_READ.value;
     var commandSeqId = getNextCommandSeqId();
@@ -154,19 +263,86 @@ class CommandManager extends ChangeNotifier {
     _mqttConnection.publish(package.toByteArray());
   }
 
-  Future loadCurrentState8113(Device device) {
-    //print("+++++++++++++++++++++++++++++++++");
-    return _loadParametersFromDevice(device, EspTypeCommand.ED_STATE);
+  Future<bool> sendAddDeviceToGroupCommand(Group group, Device device,
+      {int flag = 1}) async {
+    var commandType = CommandType.CMD_WRITE.value;
+    var commandSeqId = getNextCommandSeqId();
+    //var completer = getCompleter<bool>();
+    var cmd = EspTypeCommand.MODEM_GROUP_ED_ADD;
+
+    groupForAddDevices = group;
+
+    List<int> payload = GroupInfo(group.id).toBytes();
+    payload.addAll(device.payload);
+
+    var package = ModemPackage.createEventPackageWithFlags(
+        cmd, flag, commandType, commandSeqId, payload);
+
+    commandStorage.storeCommand(
+        commandSeqId, cmd, null /*, completer: completer*/);
+    //_connectionController.sendCommand(package.toByteArray(),
+    //completer: completer);
+    _mqttConnection.publish(package.toByteArray());
+
+    //return completer.completer.future;
   }
 
-  Future _loadParametersFromDevice(Device device, EspTypeCommand cmd) {
+  Future<bool> sendDeleteDeviceFromGroupCommand(
+      Group group, Device device, bool isHardDelete) async {
+    var commandType =
+        isHardDelete ? CommandType.CMD_READ.value : CommandType.CMD_WRITE.value;
+    print(commandType);
+//    var commandType = CommandType.CMD_WRITE.value;
+    var commandSeqId = getNextCommandSeqId();
+    //var completer = getCompleter<bool>();
+    var cmd = EspTypeCommand.MODEM_GROUP_ED_RM;
+
+    List<int> payload = GroupInfo(group.id).toBytes();
+
+    if (isHardDelete) {
+      payload.addAll([0, 0, device.id, 0]);
+    } else {
+      payload.addAll(device.payload);
+    }
+
+    groupForDeleteDevice = group;
+    deviceForDeleteFromGroup = device;
+    var package = ModemPackage.createEventPackage(
+        cmd, commandType, commandSeqId, payload);
+
+    commandStorage.storeCommand(
+      commandSeqId,
+      cmd,
+      null, /*completer: completer*/
+    );
+    // _connectionController.sendCommand(package.toByteArray(),
+    //    completer: completer);
+    _mqttConnection.publish(package.toByteArray());
+
+    //return completer.completer.future;
+  }
+
+  Future<bool> sendReadDevicesFromGroupCommand(Group group) async {
+    //groupForReadDevices = null;
+    if (groupForReadDevices != null) {
+      return false;
+    }
+
+    print("----------------" + group.id.toString());
+
     var commandType = CommandType.CMD_READ.value;
     var commandSeqId = getNextCommandSeqId();
+    //var completer = getCompleter<bool>();
+    var cmd = EspTypeCommand.MODEM_GROUP_ED;
 
-    var package = ModemPackage.createEventPackageByTypeCommand(
-        cmd, commandType, commandSeqId, (device == null) ? [] : device.payload);
+    groupForReadDevices = group;
+    var package = ModemPackage.createEventPackage(
+        cmd, commandType, commandSeqId, GroupInfo(group.id).toBytes());
 
-    commandStorage.storeCommand(commandSeqId, cmd, null);
+    commandStorage.storeCommand(
+        commandSeqId, cmd, null /*, completer: completer*/);
+    /*_connectionController.sendCommand(package.toByteArray(),
+        completer: completer);*/
     _mqttConnection.publish(package.toByteArray());
 
     //return completer.completer.future;
@@ -174,8 +350,6 @@ class CommandManager extends ChangeNotifier {
 
   Future<void> subscribeForMqttEvents() {
     mqttMessageStream.listen((MqttResponse mqttResponse) {
-      //print("+++++++++++++++++++++++++");
-      // print(mqttResponse);
       List<int> dataPackage = mqttResponse.payload.codeUnits;
       return decodeDataPackage(dataPackage, topic: mqttResponse.topic);
     });
@@ -183,9 +357,7 @@ class CommandManager extends ChangeNotifier {
 
   void decodeDataPackage(List<int> dataPackage, {String topic}) {
     var packageUnwrapper = PackageUnwrapper();
-    //print(dataPackage);
     var package = packageUnwrapper.parsePackage(dataPackage);
-    print(package);
 
     if (package is EspPackage) {
       var prevCommand = commandStorage.getLastCommand();
@@ -194,44 +366,186 @@ class CommandManager extends ChangeNotifier {
 
     if (package is AnswerPackage) {
       var prevCommand = commandStorage.getCommand(package.seqId);
-      //print(package.payload);
-      //print(prevCommand.cmd);
-      //print(prevCommand);
+      //если !true не выполняем
+      //если !fasle выполняем
+      //если есть ошибка возвращаем true
       if (!checkIsErrorAndSendToStream(package, prevCommand)) {
-        //print(package);
-        //print("__________________________________________");
-        return;
-      }
+        //return;
 
-      if (prevCommand != null) {
-        if (prevCommand.cmd != null) {
-          //print(package.cmd);
-          //print(package.payload);
-          //print(package.payload.length);
+        if (prevCommand != null) {
+          if (prevCommand.cmd != null) {
+            //devices
+            checkAndProcessTheReadDevices(package, prevCommand);
+            checkAndProcessTheDeletedDevices(package, prevCommand);
+            checkAndProcessTheAddedDevices(package, prevCommand);
 
-          //devices
-          checkAndProcessTheReadDevices(package, prevCommand);
+            // 8113, 8113 and etc controls
+            //checkAndProcessTheControlCmd(package, prevCommand);
+            checkAndProcessTheState(package, prevCommand);
+            //checkAndProcessTheControlCmdStopped(package, prevCommand);
 
-          // 8113, 8113 and etc controls
-          //checkAndProcessTheControlCmd(package, prevCommand);
-          checkAndProcessTheState(package, prevCommand);
-          //checkAndProcessTheControlCmdStopped(package, prevCommand);
-
-          //groups
-          checkAndProcessTheReadGroups(package, prevCommand);
+            //groups
+            checkAndProcessTheCreatedGroup(package, prevCommand);
+            checkAndProcessTheReadGroups(package, prevCommand);
+            checkAndProcessTheDeletedGroup(package, prevCommand);
+            checkAndProcessTheReadDevicesFromGroup(package, prevCommand);
+            checkAndProcessTheAddedDeviceToGroup(package, prevCommand);
+            checkAndProcessTheDeletedDeviceFromGroup(package, prevCommand);
+          }
         }
       }
     }
   }
 
   bool checkIsErrorAndSendToStream(AnswerPackage package, Command prevCommand) {
-    if (package.payload.length == 0) return false;
+    if (package.payload.length == 0) {
+      //groupForReadDevices = null;
+      //groupForDelete = null;
+      //deviceForDelete = null;
+      //groupForDeleteDevice = null;
+      //deviceForDeleteFromGroup = null;
+      return false;
+    }
 
     var packageType = PackageStructureType.parse(package.type);
 
     //проверка на ошибки payload
 
-    return true;
+    if (package.payload[0] == 0xc &&
+        package.payload[1] == Errors.ERROR_GROUP_DEV_EXIST.value) {
+      List error = ["error_group_exist", "error_group_exist_note"];
+      _errorStreamController.add(error);
+      /*_errorStream
+          .add(FoundErrorEvent(Errors.ERROR_GROUP_DEV_EXIST, prevCommand));
+      prevCommand.completer.completer?.completeError(
+          FoundErrorEvent(Errors.ERROR_GROUP_DEV_EXIST, prevCommand));
+      print("ERROR_GROUP_DEV_EXIST");
+      */
+      return true;
+    }
+
+    /*if (package.payload[0] == 0xc &&
+        package.payload[1] == Errors.ERROR_GROUP_NOT_EMPTY.value) {
+      List error = ["error_group_exist", "error_group_exist_note"];
+      _errorStreamController.add(error);
+      /*_errorStream
+          .add(FoundErrorEvent(Errors.ERROR_GROUP_DEV_EXIST, prevCommand));
+      prevCommand.completer.completer?.completeError(
+          FoundErrorEvent(Errors.ERROR_GROUP_DEV_EXIST, prevCommand));
+      print("ERROR_GROUP_DEV_EXIST");
+      */
+      return true;
+    }*/
+
+    if (package.payload[0] == 0xc &&
+        package.payload[1] == Errors.ERROR_DEV_TIMEOUT.value) {
+      if (prevCommand != null) {
+        //if (prevCommand.completer != null) {
+        //  if (!prevCommand.completer.completer.isCompleted) {
+        //_errorStream
+        //    .add(FoundErrorEvent(Errors.ERROR_DEV_TIMEOUT, prevCommand));
+        //prevCommand.completer?.completer?.completeError(
+        //    FoundErrorEvent(Errors.ERROR_DEV_TIMEOUT, prevCommand));
+        print("DEVICE TIMEOUT ON COMMAND ${prevCommand.cmd.toString()}");
+        groupForReadDevices = null;
+        //}
+        //}
+      }
+
+      /*if (prevCommand != null) {
+        if (prevCommand.cmd.toString() ==
+            EspTypeCommand.MODEM_RC_LIST_ADD.toString()) {
+         _deviceStream.add(RcNotFound());
+        }
+      }*/
+
+      return true;
+    }
+
+    return false;
+  }
+
+  void checkAndProcessTheDeletedGroup(
+      AnswerPackage package, Command prevCommand) {
+    if (prevCommand.cmd.toString() ==
+        EspTypeCommand.MODEM_GROUP_RM.toString()) {
+      if (package.payload.length == 0) {
+        print("remove group success package");
+        removeGroupWithSuccess(prevCommand);
+        //prevCommand.completer.completer?.complete(true);
+      }
+    }
+  }
+
+  void removeGroupWithSuccess(Command prevCommand) {
+    _groupStorage.removeGroupWithStream(groupForDelete);
+    groupForDelete = null;
+    sendReadGroupsCommand();
+  }
+
+  void checkAndProcessTheCreatedGroup(
+      AnswerPackage package, Command prevCommand) {
+    if (prevCommand.cmd.toString() ==
+        EspTypeCommand.MODEM_GROUP_ADD.toString()) {
+      if (package.payload.length == 0) {
+        print("create group success package");
+        //removeGroupWithSuccess(prevCommand);
+        //prevCommand.completer.completer?.complete(true);
+      }
+      sendReadGroupsCommand();
+    }
+  }
+
+  void checkAndProcessTheAddedDevices(AnswerPackage package, prevCommand) {
+    if (prevCommand.cmd.toString() == EspNetCmd.ESP_CMD_ADD_DEV.toString()) {
+      if (package.payload.isNotEmpty) {
+        print("added devices with list package");
+
+        var list = getDeviceListByPayload(package.payload);
+        list.forEach((device) {
+          _deviceStorage.storeDevice(device);
+        });
+
+        _deviceStreamController.add(list);
+
+        //_deviceStream.add(DeviceListChangedSocketEvent(
+        //    _deviceStorage.getDeviceListForCurrent8767()));
+        //_deviceStream.add(NewDevicesAddedEvent(list));
+      } else {
+        print("add devices started package");
+
+        //_deviceStream.add(DeviceListChangedSocketEvent(List()));
+        //_deviceStream.add(NewDevicesAddedEvent(List()));
+      }
+//      print("Add command finished");
+    }
+  }
+
+  void checkAndProcessTheDeletedDevices(
+      AnswerPackage package, Command prevCommand) {
+    if (prevCommand.cmd.toString() == EspNetCmd.ESP_CMD_DEL_DEV.toString()) {
+      print("remove device success package");
+      // todo check whether we should check for empty payload or not. 15.06.2020
+      removeDeviceWithSuccess(prevCommand);
+    }
+  }
+
+  void removeDeviceWithSuccess(Command prevCommand) {
+    //_deviceStorage.removeDeviceWithStream(deviceForDelete);
+    // _devConfigStreamController.add(deviceControlConfig);
+    if (_errorStreamController == null) {
+      _deviceStreamController
+          .add(_deviceStorage.removeDeviceWithStream(deviceForDelete));
+    }
+    _errorStreamController = null;
+    deviceForDelete = null;
+
+    _deviceStorage.getAllDeviceList();
+
+    //prevCommand.completer.completer.complete(true);
+    //_deviceStream.add(DeviceDeletedEvent());
+    //_deviceStream.add(DeviceListChangedSocketEvent(
+    //    _deviceStorage.getDeviceListForCurrent8767()));
   }
 
   void checkAndProcessTheEventControlCmd(
@@ -304,6 +618,20 @@ class CommandManager extends ChangeNotifier {
 
       var list = getDeviceListByPayload(package.payload);
       print("DEVICES = $list");
+
+      var packageType = PackageStructureType.parse(package.type);
+      if (packageType.isPartOfPackage()) {
+        _deviceStorage.storeToTemp(list);
+        //prevCommand.completer.updateFutureWithTime();
+      } else {
+        _deviceStorage.storeToTemp(list);
+        _deviceStorage.storeAllDevices();
+        //_deviceStreamController.add(list);
+        //_deviceStream.add(DeviceListChangedSocketEvent(
+        //_deviceStorage.getDeviceListForCurrent8767()));
+
+        //prevCommand.completer.completer?.complete(true);
+      }
     }
   }
 
@@ -315,14 +643,15 @@ class CommandManager extends ChangeNotifier {
       var list = getGroupListByPayload(package.payload);
       print("GROUPS = $list");
 
-      //var packageType = PackageStructureType.parse(package.type);
-      // if (packageType.isPartOfPackage()) {
-      //  _groupStorage.storeToTemp(list);
-      //   prevCommand.completer.updateFutureWithTime();
-      // } else {
-      //   _groupStorage.storeToTemp(list);
-      //   _groupStorage.storeAllGroups();
-      //  }
+      var packageType = PackageStructureType.parse(package.type);
+      if (packageType.isPartOfPackage()) {
+        _groupStorage.storeToTemp(list);
+        //prevCommand.completer.updateFutureWithTime();
+      } else {
+        _groupStorage.storeToTemp(list);
+        _groupStorage.storeAllGroups();
+        _groupStreamController.add(list);
+      }
     }
   }
 
@@ -428,8 +757,6 @@ class CommandManager extends ChangeNotifier {
       print("команда управления девайсом: " +
           deviceControlConfig.toString() +
           " package");
-//      print("checkAndProcessTheControlCmd " + deviceControlConfig.toString());
-      //print(deviceControlConfig.timeExe);
       double timeExe = deviceControlConfig.timeExe.toDouble();
 
       if (deviceControlConfig.unitTime == 0)
@@ -439,15 +766,14 @@ class CommandManager extends ChangeNotifier {
       } else if (deviceControlConfig.unitTime == 3) {
         timeExe = (deviceControlConfig.timeExe * 60 * 60).toDouble();
       }
-      //print(timeExe);
 
-      /*Direction direction;
+      Direction direction;
 
       if (deviceControlConfig.direction == 1) {
         direction = Direction.UP_OR_ON;
       } else {
         direction = Direction.DOWN_OR_OFF;
-      }*/
+      }
 
       /*var currPos = deviceControlConfig.curPosPercents.toDouble();
 
@@ -488,13 +814,18 @@ class CommandManager extends ChangeNotifier {
       var devicePayload = payload.takeAndRemove(4);
       DeviceInfo deviceInfo = DeviceInfo.fromBytes(devicePayload);
       var deviceName = "${getDevName(deviceInfo.type)}";
-      //print(_settings8767storage);
       Device device = Device(deviceName, devicePayload, deviceInfo.idNet,
           deviceInfo.type, deviceName, _settings8767storage.getSettings().mac);
       deviceList.add(device);
     }
+    /*Device device = Device("8112_MINI", payload, deviceList.length + 1, 2,
+        "8112_MINI", _settings8767storage.getSettings().mac);
+    deviceList.add(device);
+    device = Device("Radio 8117 micro", payload, deviceList.length + 1, 3,
+        "Radio 8117 micro", _settings8767storage.getSettings().mac);
+    deviceList.add(device);*/
 
-    _listStreamController.add(deviceList);
+    //_listStreamController.add(deviceList);
 
     return deviceList;
   }
@@ -516,9 +847,92 @@ class CommandManager extends ChangeNotifier {
       groupList.add(group);
     }
 
-    _listStreamController.add(groupList);
-
     return groupList;
+  }
+
+  void checkAndProcessTheReadDevicesFromGroup(
+      AnswerPackage package, Command prevCommand) {
+    if (prevCommand.cmd.toString() ==
+            EspTypeCommand.MODEM_GROUP_ED.toString() &&
+        groupForReadDevices != null) {
+      var groupDeviceList = List<int>();
+      var groupCount = package.payload.length;
+      for (var i = 0; i < groupCount; i++) {
+        var deviceIdBytes = package.payload.takeAndRemove(1);
+
+        groupDeviceList.add(deviceIdBytes.fromBytes());
+      }
+
+      _deviceStreamController.add(groupDeviceList);
+      groupForReadDevices.deviceIds = groupDeviceList;
+      _groupStorage.updateGroup(groupForReadDevices);
+      /* _groupStorage.updateGroup(Group(
+          //imagePath: groupForReadDevices.imagePath,
+          name: groupForReadDevices.name,
+          id: groupForReadDevices.id,
+          deviceIds: package.payload,
+          mac: _settings8767storage.getSettings().mac));*/
+
+      groupForReadDevices = null;
+      //prevCommand.completer.completer?.complete(true);
+    }
+  }
+
+  void checkAndProcessTheAddedDeviceToGroup(
+      AnswerPackage package, Command prevCommand) {
+    if (prevCommand.cmd.toString() ==
+        EspTypeCommand.MODEM_GROUP_ED_ADD.toString()) {
+      if (package.payload.length == 0) {
+        print("device added to group success package");
+
+        sendReadDevicesFromGroupCommand(groupForAddDevices);
+        groupForAddDevices = null;
+
+        /*var groupDeviceList = List<int>();
+        var groupCount = package.payload.length;
+        for (var i = 0; i < groupCount; i++) {
+          var deviceIdBytes = package.payload.takeAndRemove(1);
+
+          groupDeviceList.add(deviceIdBytes.fromBytes());
+        }
+
+        _deviceStreamController.add(groupDeviceList);
+        groupForReadDevices.deviceIds = groupDeviceList;
+        _groupStorage.updateGroup(groupForReadDevices);
+
+        groupForReadDevices = null;*/
+        //prevCommand.completer.completer?.complete(true);
+      }
+    }
+  }
+
+  void checkAndProcessTheDeletedDeviceFromGroup(
+      AnswerPackage package, Command prevCommand) {
+    if (prevCommand.cmd.toString() ==
+        EspTypeCommand.MODEM_GROUP_ED_RM.toString()) {
+      if (package.payload.length == 0) {
+        print("device deleted from group success package");
+
+        List<int> newDeviceIdsFromGroup = [];
+
+        groupForDeleteDevice.deviceIds.forEach((element) {
+          if (element != deviceForDeleteFromGroup.id) {
+            newDeviceIdsFromGroup.add(element);
+          }
+        });
+
+        _deviceStreamController.add(newDeviceIdsFromGroup);
+
+        _groupStorage.updateGroup(Group(
+            id: groupForDeleteDevice.id,
+            name: groupForDeleteDevice.name,
+            //imagePath: groupForDeleteDevice.imagePath,
+            deviceIds: newDeviceIdsFromGroup,
+            mac: _settings8767storage.getSettings().mac));
+
+        //prevCommand.completer.completer?.complete(true);
+      }
+    }
   }
 }
 
@@ -612,3 +1026,5 @@ class RadioDevices {
     return "$runtimeType ${value.toString()}";
   }
 }
+
+enum Direction { UP_OR_ON, DOWN_OR_OFF }

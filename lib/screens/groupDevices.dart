@@ -4,37 +4,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:rcd_s/components/choiceAlert.dart';
-import 'package:rcd_s/components/menu.dart';
+import 'package:rcd_s/components/input.dart';
 import 'package:rcd_s/components/simpleAlert.dart';
 import 'package:rcd_s/devices/command_manager.dart';
 import 'package:rcd_s/models/device.dart';
+import 'package:rcd_s/models/group.dart';
 import 'package:rcd_s/screens/deviceDetail.dart';
 import 'package:rcd_s/services/globals.dart' as globals;
 import 'package:rcd_s/services/isConnect.dart';
 import 'package:rcd_s/services/translate.dart';
+import 'package:rcd_s/storage/group_storage.dart';
 import 'package:rcd_s/storage/local_storage.dart';
 import 'addDevice.dart';
 
-class Devices extends StatefulWidget {
-  Devices({Key key}) : super(key: key);
+class GroupDevices extends StatefulWidget {
+  static Group group;
+  static CommandManager commandManager;
+
+  GroupDevices(Group currentGroup, CommandManager curManager) {
+    group = currentGroup;
+    commandManager = curManager;
+  }
 
   @override
-  _DevicesState createState() => _DevicesState();
+  _GroupDevicesState createState() => _GroupDevicesState(group, commandManager);
 }
 
-class _DevicesState extends State<Devices> {
-  CommandManager commandManager;
+class _GroupDevicesState extends State<GroupDevices> {
+  static Group group;
+  static CommandManager commandManager;
   StreamSubscription subscription;
   DeviceLocalStorage _deviceLocalStorage;
-  //CommandManagerChanger commandManagerChanger;
+  GroupLocalStorage groupLocalStorage;
+  Device deviceForAdd;
+  List groupList;
+
+  _GroupDevicesState(Group currentGroup, CommandManager curManager) {
+    group = currentGroup;
+    commandManager = curManager;
+  }
+
+  TextEditingController _nameController = TextEditingController();
+  List addDevicesList;
 
   @override
   void initState() {
+    _nameController = TextEditingController(text: group.name);
     super.initState();
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     //subscription.cancel();
     super.dispose();
   }
@@ -43,10 +64,9 @@ class _DevicesState extends State<Devices> {
   Widget build(BuildContext context) {
     IsConnect.initConnectivity(context);
 
-    commandManager = Provider.of<CommandManager>(context);
-    //commandManager.sendReadDeviceCommand();
-    _deviceLocalStorage = Provider.of<DeviceLocalStorage>(context);
-    _deviceLocalStorage.getAllDeviceList();
+    commandManager.sendReadDevicesFromGroupCommand(group);
+    groupLocalStorage = Provider.of<GroupLocalStorage>(context);
+    groupList = groupLocalStorage.getDevicesIds(group);
 
     subscription = commandManager.errorStream.listen((event) {
       //simpleAlert(event[0].toString(), event[1].toString(), context);
@@ -55,13 +75,25 @@ class _DevicesState extends State<Devices> {
       subscription.cancel();
     });
 
+    //commandManager = Provider.of<CommandManager>(context);
+    // commandManager.sendReadDeviceCommand();
     return _body();
   }
 
   Widget _body() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).translate('devices')),
+        title: Text('${group.name}'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.create_rounded),
+            tooltip: AppLocalizations.of(context).translate('rename'),
+            onPressed: () {
+              (globals.isAdmin) ? renameGroup(group) : null;
+            },
+            color: (globals.isAdmin) ? Colors.white : Colors.white30,
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -77,12 +109,10 @@ class _DevicesState extends State<Devices> {
           ],
         ),
       ),
-      drawer: Menu(AppLocalizations.of(context).translate('devices'), context),
       floatingActionButton: FloatingActionButton(
         backgroundColor: (globals.isAdmin)
             ? Theme.of(context).accentColor
             : Color.fromARGB(255, 170, 170, 170),
-        //onPressed: (globals.isAdmin) ? _addDevice(commandManager) : null,
         onPressed: (globals.isAdmin) ? _addDevice : null,
         child: Icon(Icons.add),
       ),
@@ -91,9 +121,10 @@ class _DevicesState extends State<Devices> {
 
   Widget _list() {
     return StreamBuilder(
-      stream: _deviceLocalStorage.deviceListStream,
+      stream: groupLocalStorage.groupDeviceListStream,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
+          _deviceLocalStorage = Provider.of<DeviceLocalStorage>(context);
           if (snapshot.data.length == 0)
             return Center(
                 child: Text(
@@ -104,6 +135,9 @@ class _DevicesState extends State<Devices> {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
+                Device device =
+                    _deviceLocalStorage.getDeviceById(snapshot.data[index]);
+
                 return Column(
                   children: [
                     Padding(padding: EdgeInsets.only(top: 10)),
@@ -141,15 +175,15 @@ class _DevicesState extends State<Devices> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     SvgPicture.asset(
-                                      (snapshot.data[index].type == 1 ||
-                                              snapshot.data[index].type == 4)
+                                      //(allDevice[snapshot.data[index] - 1].type ==
+                                      (device.type == 1 || device.type == 4)
                                           ? 'assets/SVG/8113.svg'
-                                          : (snapshot.data[index].type == 6)
+                                          : (device.type == 6)
                                               ? 'assets/SVG/8112.svg'
                                               : 'assets/SVG/8117.svg',
                                       //'assets/SVG/devices.svg',
                                       color: Color.fromARGB(255, 56, 140, 203),
-                                      height: 50,
+                                      width: 50,
                                     ),
                                     Padding(
                                         padding: EdgeInsets.only(right: 10)),
@@ -158,7 +192,7 @@ class _DevicesState extends State<Devices> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          snapshot.data[index].id.toString(),
+                                          device.id.toString(),
                                           style: TextStyle(
                                               color: Color.fromARGB(
                                                   128, 128, 128, 128),
@@ -167,11 +201,9 @@ class _DevicesState extends State<Devices> {
                                         Padding(
                                             padding: EdgeInsets.only(top: 5)),
                                         Text(
-                                          (snapshot.data[index].type == 1 ||
-                                                  snapshot.data[index].type ==
-                                                      4)
+                                          (device.type == 1 || device.type == 4)
                                               ? 'Ролета'
-                                              : (snapshot.data[index].type == 6)
+                                              : (device.type == 6)
                                                   ? 'Напряжение'
                                                   : 'Шлагбаум',
                                           style: TextStyle(
@@ -185,7 +217,7 @@ class _DevicesState extends State<Devices> {
                                 ),
                                 Padding(padding: EdgeInsets.only(top: 20)),
                                 Text(
-                                  snapshot.data[index].name,
+                                  device.name,
                                   style: TextStyle(fontSize: 18),
                                 ),
                               ],
@@ -193,9 +225,7 @@ class _DevicesState extends State<Devices> {
                             IconButton(
                               icon: Icon(Icons.delete),
                               onPressed: () {
-                                (globals.isAdmin)
-                                    ? _deleteDevice(snapshot.data[index])
-                                    : null;
+                                (globals.isAdmin) ? deleteDevice(device) : null;
                               },
                               padding: EdgeInsets.only(bottom: 60),
                               color: (globals.isAdmin)
@@ -206,8 +236,8 @@ class _DevicesState extends State<Devices> {
                         ),
                         splashColor: Color.fromARGB(255, 56, 140, 203),
                         onTap: () {
-                          Navigator.of(context).push(_createRoute(
-                              snapshot.data[index], commandManager));
+                          Navigator.of(context)
+                              .push(_createRoute(device, commandManager));
                         },
                       ),
                     ),
@@ -217,7 +247,7 @@ class _DevicesState extends State<Devices> {
               },
             );
         } else
-          _deviceLocalStorage.getAllDeviceList();
+          groupLocalStorage.getDevicesIds(group);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -234,20 +264,116 @@ class _DevicesState extends State<Devices> {
     );
   }
 
-  //_addDevice(CommandManager commandManager) {
   _addDevice() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return AddDevice(commandManager);
-    }));
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          groupList = groupLocalStorage.getDevicesIds(group);
+          List devices = _deviceLocalStorage.getAllDeviceList();
+          groupList.forEach((dev) {
+            devices.removeWhere((element) => element.id == dev);
+          });
+          var list = devices.map((dynamic value) {
+            return new DropdownMenuItem<dynamic>(
+              value: value.id,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(value.name),
+                  //Text(value.id.toString()),
+                  //Padding(padding: EdgeInsets.only(top: 10)),
+                ],
+              ),
+            );
+          }).toList();
+          return AlertDialog(
+            content: Container(
+              height: MediaQuery.of(context).size.height * 0.2,
+              child: Column(
+                children: [
+                  Text("Выберите устройство для добавления в группу"),
+                  Padding(padding: EdgeInsets.only(top: 30)),
+                  DropdownButtonFormField<dynamic>(
+                    items: list,
+                    onChanged: (dynamic value) {
+                      if (value != String)
+                        setState(() {
+                          deviceForAdd =
+                              _deviceLocalStorage.getDeviceById(value);
+                          print(deviceForAdd);
+                        });
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 56, 140, 203),
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Выберите устройство',
+                      hintMaxLines: 5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Отмена'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('Добавить'),
+                onPressed: () async {
+                  //await _deviceLocalStorage.updateDevice(device);
+                  await commandManager.sendAddDeviceToGroupCommand(
+                      group, deviceForAdd);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
   }
 
-  void _deleteDevice(Device currentDevice) {
+  void deleteDevice(Device currentDevice) {
     choiceAlert(
         AppLocalizations.of(context).translate('deviceDelete'),
-        AppLocalizations.of(context).translate('deviceDeleteNote'),
+        AppLocalizations.of(context).translate('deviceFromGroupDeleteNote'),
         AppLocalizations.of(context).translate('delete'), () {
-      commandManager.sendDeleteCommand(currentDevice, false);
+      commandManager.sendDeleteDeviceFromGroupCommand(
+          group, currentDevice, false);
+      //commandManager.sendDeleteCommand(currentDevice, true);
     }, context);
+  }
+
+  renameGroup(Group group) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: input("Название", TextInputType.name, _nameController,
+                false, context),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Отмена'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('Переименовать'),
+                onPressed: () async {
+                  group.name = _nameController.value.text;
+                  //await _deviceLocalStorage.updateDevice(device);
+                  await groupLocalStorage.updateGroup(group);
+                  Navigator.of(context).pop();
+                  //function();
+                },
+              ),
+            ],
+          );
+        });
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:rcd_s/components/input.dart';
 import 'package:rcd_s/components/simpleButton.dart';
 import 'package:rcd_s/connections/mqttConnect.dart';
+import 'package:rcd_s/devices/command_manager.dart';
 //import 'package:rcd_s/connections/mqttAppState.dart';
 import 'package:rcd_s/screens/devices.dart';
 import 'package:rcd_s/services/isConnect.dart';
@@ -30,6 +31,8 @@ class AuthorizationState extends State<Authorization> {
   TextEditingController _loginController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
+  CommandManager commandManager;
+
   @override
   void dispose() {
     _loginController.dispose();
@@ -43,6 +46,8 @@ class AuthorizationState extends State<Authorization> {
 
     _themeChanger = Provider.of<ThemeChanger>(context);
     appLanguage = Provider.of<AppLanguage>(context);
+
+    commandManager = Provider.of<CommandManager>(context);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -142,12 +147,15 @@ class AuthorizationState extends State<Authorization> {
                     {appLanguage.changeLanguage(Locale("ru"))}
                   else
                     {appLanguage.changeLanguage(Locale("en"))},
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Devices()),
-                  ),
+                  commandManager.sendReadDeviceCommand(),
+                  commandManager.sendReadGroupsCommand(),
+                  Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (context) {
+                    return Devices();
+                  }), (route) => false),
                 },
               ),
+
               /*Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Devices()),
